@@ -1,4 +1,11 @@
 streamlit==1.35.0
-supabase-py==1.0.3
+supabase
 python-dotenv==1.0.1
-httpx==0.23.0
+pandas==2.2.2
+openpyxl==3.1.2
+qrcode==7.4.2
+Pillow==10.3.0
+requests==2.31.0
+google-auth==2.29.0
+google-auth-oauthlib==1.2.0
+google-api-python-client==2.127.0
