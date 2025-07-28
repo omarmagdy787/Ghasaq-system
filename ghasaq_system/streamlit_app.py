@@ -7,8 +7,8 @@ import pandas as pd
 # ===== تحميل ملف .env =====
 load_dotenv()
 
-url = st.secrets("url")
-key = st.secrets("key")
+url = st.secrets["url"]
+key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
 
 # ===== التحقق من البيانات =====
