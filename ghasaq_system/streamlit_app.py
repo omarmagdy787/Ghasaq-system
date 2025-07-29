@@ -26,9 +26,6 @@ st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 import streamlit as st
 # ========== االتنسيق==========
-import streamlit as st
-import streamlit.components.v1 as components
-
 # إنشاء الأعمدة
 col1, col2, col3 = st.columns([0.5, 0.5, 0.5])
 
