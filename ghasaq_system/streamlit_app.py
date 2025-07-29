@@ -77,7 +77,7 @@ with col3:
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
     team_id = st.text_input("Team ID")
-    description = st.text_area("Description", height=30)
+    description = st.text_area("Description", height=100)
 
 # ========== زر الحفظ ==========
 st.markdown("---")
