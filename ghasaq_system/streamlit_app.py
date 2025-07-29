@@ -84,7 +84,15 @@ with col_update:
             st.success("✅ تم تحديث المهمة بنجاح")
         except Exception as e:
             st.error(f"❌ خطأ أثناء التحديث: {e}")
-
+            
+st.session_state['client_name'] = ""
+st.session_state['client_phone'] = ""
+st.session_state['door_description'] = ""
+st.session_state['quantity'] = ""
+st.session_state['rate'] = ""
+st.session_state['total'] = ""
+st.session_state['note'] = ""
+st.session_state['end_date'] = ""
 with col_add:
     if st.button("💾 إضافة المهمة"):
         try:
