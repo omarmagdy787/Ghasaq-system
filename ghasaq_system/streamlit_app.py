@@ -22,30 +22,28 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
-# ========== تنسيق الخانات==========
+import streamlit as st
+
+# أسلوب التنسيق
 st.markdown(
     """
     <style>
-        /* لكل input داخل الأعمدة */
-        [data-testid="stTextInput"] input {
-            max-width: 120px;
-            width: 120px;
-        }
-        /* TextArea */
-        [data-testid="stTextArea"] textarea {
-            max-width: 120px;
-            width: 120px;
-        }
-        /* التاريخ */
-        [data-testid="stDateInput"] input {
-            max-width: 120px;
-            width: 120px;
-        }
-        /* selectbox */
-        [data-testid="stSelectbox"] div[data-baseweb="select"] {
-            max-width: 120px;
-            width: 120px;
-        }
+    /* تنسيق عام لكل العناصر */
+    input, textarea, select, div[data-baseweb="select"] {
+        width: 120px !important;
+        max-width: 120px !important;
+    }
+
+    /* علشان نحكم في الطول كمان */
+    textarea {
+        height: 50px !important;
+    }
+
+    /* لو عايز تقلل المسافة بين العناصر */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
     </style>
     """,
     unsafe_allow_html=True
