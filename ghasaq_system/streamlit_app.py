@@ -29,16 +29,15 @@ import streamlit as st
 # إنشاء الأعمدة
 col1, col2, col3 = st.columns([0.5, 0.5, 0.5])
 
-# HTML بسيط
-html_code = """
-<div style="background-color:#f4f4f4;padding:10px;border-radius:8px;">
-  <h4 style="color:#333;">محتوى HTML</h4>
-  <p style="font-size:14px;">هذا صندوق HTML داخل العمود</p>
-</div>
-"""
-
 with col1:
-    components.html(html_code, height=120)
+       with st.container():
+        st.markdown(
+            """
+            <div style='background-color:#f4f4f4;padding:10px;border-radius:8px'>
+                <h4 style="color:#333;margin-bottom:10px;">محتوى داخل العمود 1</h4>
+            </div>
+            """, unsafe_allow_html=True
+        )
     project_name = st.text_input("Project Name")
     number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
