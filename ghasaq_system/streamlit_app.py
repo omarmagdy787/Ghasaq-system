@@ -3,6 +3,8 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import streamlit.components.v1 as components
+
 
 # ========== تحميل ملف .env ==========
 load_dotenv()
