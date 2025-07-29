@@ -43,11 +43,11 @@ with col2:
     number = st.text_input("Task Number")
     category = st.text_input("Category")
     assigned_to = st.text_input("Assigned To")
-    from_date = st.date_input("From")
+    from = st.text_input("From")
     tasks_block = st.text_input("Tasks Blocked By")
 
 with col3:
-    to_date = st.date_input("To")
+    to = st.text_input("To")
     end_date = st.date_input("End Date")
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
