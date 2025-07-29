@@ -22,7 +22,6 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
-
 sst.markdown(
     """
     <style>
@@ -31,19 +30,16 @@ sst.markdown(
             max-width: 120px;
             width: 120px;
         }
-
         /* TextArea */
         [data-testid="stTextArea"] textarea {
             max-width: 120px;
             width: 120px;
         }
-
         /* التاريخ */
         [data-testid="stDateInput"] input {
             max-width: 120px;
             width: 120px;
         }
-
         /* selectbox */
         [data-testid="stSelectbox"] div[data-baseweb="select"] {
             max-width: 120px;
