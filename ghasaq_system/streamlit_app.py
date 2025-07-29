@@ -25,7 +25,7 @@ st.title("📋 Ghasaq System")
 import streamlit as st
 
 # تقسيم الإدخال إلى أعمدة
-col1, col2, col3 = st.columns([0.5, 0.5, 0.5])
+col1, col2, col3 = st.columns([0.5, 0.5, 1])
 
 with col1:
     project_name = st.text_input("Project Name")
