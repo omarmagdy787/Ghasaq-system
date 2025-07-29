@@ -47,20 +47,21 @@ col1, col2, col3 = st.columns([1, 1, 1])
 
 with col1:
     project_name = st.text_input("Project Name")
+    number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
     quantity = st.text_input("Quantity")
-    description = st.text_area("Description", height=50)
-    tasks_depends = st.text_input("Tasks Depends On")
-
-with col2:
-    number = st.text_input("Task Number")
     category = st.text_input("Category")
     assigned_to = st.text_input("Assigned To")
+
+with col2:
+    description = st.text_area("Description", height=30)
     from_text = st.text_input("From")
+    to_text = st.text_input("To")
+    from_text = st.text_input("From")
+    tasks_depends = st.text_input("Tasks Depends On")
     tasks_block = st.text_input("Tasks Blocked By")
 
 with col3:
-    to_text = st.text_input("To")
     end_date = st.date_input("End Date")
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
