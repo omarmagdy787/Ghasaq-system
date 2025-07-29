@@ -36,7 +36,6 @@ with col1:
     category = st.text_input("Category")
 
 with col2:
-    components.html(html_code, height=120)
     assigned_to = st.text_input("Assigned To")
     from_text = st.text_input("From")
     to_text = st.text_input("To")
@@ -44,7 +43,6 @@ with col2:
     tasks_block = st.text_input("Tasks Blocked By")
 
 with col3:
-    components.html(html_code, height=120)
     end_date = st.date_input("End Date")
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
