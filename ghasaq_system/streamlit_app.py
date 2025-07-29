@@ -28,7 +28,7 @@ import streamlit as st
 col1, col2, col3 = st.columns([1.2, 1.2, 1])
 
 with col1:
-    project_name = st.text_input("Project Name")
+    project_name = st.text_input("Project Name",height=100)
     number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
     quantity = st.text_input("Quantity")
