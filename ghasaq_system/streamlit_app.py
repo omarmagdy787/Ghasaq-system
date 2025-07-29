@@ -80,13 +80,14 @@ if selected_task:
     to_text = selected_task["to"]
     tasks_depends = selected_task["tasks_depends"]
     tasks_block = selected_task["tasks_block"]
+    # ✅ هنا نضيف تعريف end_date_raw
+    end_date_raw = selected_task.get("end_date", "")
     safe_end_date = pd.to_datetime(end_date_raw, errors='coerce')
     end_date = st.date_input("End Date", safe_end_date if not pd.isna(safe_end_date) else pd.Timestamp.today())
     plan_b = selected_task["plan_b"]
     check = selected_task["check"]
     team_id = selected_task["team_id"]
     description = selected_task["description"]
-
 # زر التحديث
 with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task_id:
