@@ -24,33 +24,6 @@ st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 import streamlit as st
 
-# أسلوب التنسيق
-import streamlit as st
-
-st.markdown(
-    """
-    <style>
-    .custom-input input {
-        width: 120px !important;
-    }
-    .custom-date input {
-        width: 120px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# مثال لتطبيق التنسيق
-with st.container():
-    st.markdown('<div class="custom-input">', unsafe_allow_html=True)
-    text_val = st.text_input("From")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="custom-date">', unsafe_allow_html=True)
-    date_val = st.date_input("End Date")
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # تقسيم الإدخال إلى أعمدة
 col1, col2, col3 = st.columns([1.2, 1.2, 1])
 
