@@ -25,36 +25,41 @@ st.title("📋 Ghasaq System")
 import streamlit as st
 
 # أسلوب التنسيق
-st.markdown(
-    """
+st.markdown("""
     <style>
-    /* تنسيق عام لكل العناصر */
-    input, textarea, select, div[data-baseweb="select"] {
+    /* جميع حقول الإدخال النصية */
+    input[type="text"] {
         width: 120px !important;
-        max-width: 120px !important;
     }
 
-    /* علشان نحكم في الطول كمان */
+    /* التاريخ */
+    .stDateInput > div {
+        width: 130px !important;
+    }
+
+    /* الـ selectbox */
+    .stSelectbox > div {
+        width: 130px !important;
+    }
+
+    /* text area */
     textarea {
+        width: 130px !important;
         height: 50px !important;
     }
 
-    /* لو عايز تقلل المسافة بين العناصر */
+    /* تقليل المسافات الرأسية */
     .block-container {
         padding-top: 1rem;
         padding-bottom: 1rem;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-# الأعمدة المطلوبة
-columns = [
-    "project_name", "number", "task_name", "quantity", "category", "assigned_to",
-    "description", "from", "to", "tasks_depends", "tasks_block", "end_date",
-    "plan_b", "check", "team_id"
-]
 
+    /* تقليل المسافة بين العناصر داخل الأعمدة */
+    .stTextInput, .stSelectbox, .stDateInput, .stTextArea {
+        margin-bottom: 0.5rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # تقسيم الإدخال إلى أعمدة
 col1, col2, col3 = st.columns([1.2, 1.2, 1])
 
