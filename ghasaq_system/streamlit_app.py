@@ -130,8 +130,21 @@ if edit_data:
                     "category": category,
                     "assigned_to": assigned_to,
                     "description": description,
-                    "from": fro
-
+                    "from": from_text,
+                    "to": to_text,
+                    "tasks_depends": tasks_depends,
+                    "tasks_block": tasks_block,
+                    "end_date": end_date.isoformat() if end_date else "",
+                    "plan_b": plan_b,
+                    "check": check,
+                    "team_id": team_id if team_id else None
+                }
+                supabase.table(TABLE_NAME).update(updated_data).eq("id", selected_task_id).execute()
+                st.success("✅ تم تحديث المهمة بنجاح")
+            except Exception as e:
+                st.error(f"❌ حدث خطأ أثناء التحديث: {e}")
+else:
+    st.info("لا توجد مهام للتعديل.")
 
 
 
