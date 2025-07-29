@@ -23,25 +23,31 @@ supabase: Client = create_client(url, key)
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
-st.markdown(
+sst.markdown(
     """
     <style>
-        /* تحكم في كل input و textarea */
-        input[type="text"], textarea {
-            max-width: 100px !important;
-            width: 100px !important;
+        /* لكل input داخل الأعمدة */
+        [data-testid="stTextInput"] input {
+            max-width: 120px;
+            width: 120px;
         }
 
-        /* تحكم في التاريخ */
-        .stDateInput input {
-            max-width: 100px !important;
-            width: 100px !important;
+        /* TextArea */
+        [data-testid="stTextArea"] textarea {
+            max-width: 120px;
+            width: 120px;
         }
 
-        /* تحكم في selectbox */
-        .stSelectbox > div {
-            max-width: 100px !important;
-            width: 100px !important;
+        /* التاريخ */
+        [data-testid="stDateInput"] input {
+            max-width: 120px;
+            width: 120px;
+        }
+
+        /* selectbox */
+        [data-testid="stSelectbox"] div[data-baseweb="select"] {
+            max-width: 120px;
+            width: 120px;
         }
     </style>
     """,
