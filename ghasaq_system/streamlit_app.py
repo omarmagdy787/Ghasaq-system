@@ -23,6 +23,18 @@ supabase: Client = create_client(url, key)
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
+# ========== تنسيق CSS لتصغير الخانات ==========
+st.markdown(
+    """
+    <style>
+        .element-container input, .element-container textarea, .stTextInput input {
+            max-width: 250px !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # الأعمدة المطلوبة
 columns = [
     "project_name", "number", "task_name", "quantity", "category", "assigned_to",
@@ -31,7 +43,8 @@ columns = [
 ]
 
 # تقسيم الإدخال إلى أعمدة
-col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns([1, 1, 1])
+
 with col1:
     project_name = st.text_input("Project Name")
     task_name = st.text_input("Task Name")
@@ -53,7 +66,8 @@ with col3:
     check = st.selectbox("Check", ["Yes", "No"])
     team_id = st.text_input("Team ID")
 
-# زر الحفظ
+# ========== زر الحفظ ==========
+st.markdown("---")
 if st.button("💾 إضافة المهمة"):
     try:
         data = {
@@ -78,9 +92,8 @@ if st.button("💾 إضافة المهمة"):
     except Exception as e:
         st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
 
-# ===== عرض الجدول =====
+# ========== عرض الجدول ==========
 st.subheader("📊 Current Tasks")
-
 try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
@@ -93,4 +106,5 @@ try:
 
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
+
 
