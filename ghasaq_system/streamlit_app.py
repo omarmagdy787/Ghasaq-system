@@ -40,20 +40,8 @@ html_code = """
 </div>
 """
 
-# نرندر HTML جوا كل عمود معين
 with col1:
-    st.write("عمود 1")
     components.html(html_code, height=120)
-
-with col2:
-    st.write("عمود 2")
-    components.html(html_code, height=120)
-
-with col3:
-    st.write("عمود 3")
-    components.html(html_code, height=120)
-
-with col1:
     project_name = st.text_input("Project Name")
     number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
@@ -61,6 +49,7 @@ with col1:
     category = st.text_input("Category")
 
 with col2:
+    components.html(html_code, height=120)
     assigned_to = st.text_input("Assigned To")
     from_text = st.text_input("From")
     to_text = st.text_input("To")
@@ -68,6 +57,7 @@ with col2:
     tasks_block = st.text_input("Tasks Blocked By")
 
 with col3:
+    components.html(html_code, height=120)
     end_date = st.date_input("End Date")
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
