@@ -22,7 +22,8 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
-sst.markdown(
+# ========== تنسيق الخانات==========
+st.markdown(
     """
     <style>
         /* لكل input داخل الأعمدة */
