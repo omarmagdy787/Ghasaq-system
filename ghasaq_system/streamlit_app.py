@@ -97,6 +97,8 @@ with col_update:
                 if key in st.session_state:
                     del st.session_state[key]
 
+            st.rerun()  # ← إعادة تحميل الصفحة لتفريغ كل شيء
+
         except Exception as e:
             st.error(f"❌ خطأ أثناء التحديث: {e}")
 
