@@ -50,30 +50,97 @@ with col3:
     description = st.text_area("Description", height=100)
 
 # ========== زر الحفظ ==========
+# ========== اختيار ID للتعديل ==========
 st.markdown("---")
-if st.button("💾 إضافة المهمة"):
+col_select, col_update, col_add = st.columns([1, 1, 1])
+
+# جلب بيانات المهام
+edit_response = supabase.table(TABLE_NAME).select("*").execute()
+edit_data = edit_response.data
+selected_task = None
+selected_task_id = None
+
+if edit_data:
+    task_options = {f"{item['id']} - {item['task_name']}": item['id'] for item in edit_data}
+    with col_select:
+        selected_label = st.selectbox("🔽 اختر مهمة للتعديل", [""] + list(task_options.keys()))
+        if selected_label:
+            selected_task_id = task_options[selected_label]
+            selected_task = next((item for item in edit_data if item["id"] == selected_task_id), None)
+
+# إعادة تعبئة الخانات لو في ID متحدد
+if selected_task:
+    project_name = selected_task["project_name"]
+    number = selected_task["number"]
+    task_name = selected_task["task_name"]
+    quantity = selected_task["quantity"]
+    category = selected_task["category"]
+    assigned_to = selected_task["assigned_to"]
+    from_text = selected_task["from"]
+    to_text = selected_task["to"]
+    tasks_depends = selected_task["tasks_depends"]
+    tasks_block = selected_task["tasks_block"]
+    end_date_raw = selected_task.get("end_date", "")
     try:
-        data = {
-            "project_name": project_name,
-            "number": number,
-            "task_name": task_name,
-            "quantity": quantity,
-            "category": category,
-            "assigned_to": assigned_to,
-            "description": description,
-            "from": from_text,
-            "to": to_text,
-            "tasks_depends": tasks_depends,
-            "tasks_block": tasks_block,
-            "end_date": end_date.isoformat() if end_date else "",
-            "plan_b": plan_b,
-            "check": check,
-            "team_id": team_id if team_id else None
-        }
-        supabase.table(TABLE_NAME).insert(data).execute()
-        st.success("✅ تم حفظ المهمة بنجاح")
-    except Exception as e:
-        st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
+        end_date = pd.to_datetime(end_date_raw) if end_date_raw else pd.Timestamp.today()
+    except:
+        end_date = pd.Timestamp.today()
+    plan_b = selected_task["plan_b"]
+    check = selected_task["check"]
+    team_id = selected_task["team_id"]
+    description = selected_task["description"]
+
+# زر التحديث
+with col_update:
+    if st.button("🔄 تحديث المهمة") and selected_task_id:
+        try:
+            updated_data = {
+                "project_name": project_name,
+                "number": number,
+                "task_name": task_name,
+                "quantity": quantity,
+                "category": category,
+                "assigned_to": assigned_to,
+                "description": description,
+                "from": from_text,
+                "to": to_text,
+                "tasks_depends": tasks_depends,
+                "tasks_block": tasks_block,
+                "end_date": end_date.isoformat(),
+                "plan_b": plan_b,
+                "check": check,
+                "team_id": team_id
+            }
+            supabase.table(TABLE_NAME).update(updated_data).eq("id", selected_task_id).execute()
+            st.success("✅ تم تحديث المهمة بنجاح")
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء التحديث: {e}")
+
+# زر الإضافة
+with col_add:
+    if st.button("💾 إضافة المهمة"):
+        try:
+            data = {
+                "project_name": project_name,
+                "number": number,
+                "task_name": task_name,
+                "quantity": quantity,
+                "category": category,
+                "assigned_to": assigned_to,
+                "description": description,
+                "from": from_text,
+                "to": to_text,
+                "tasks_depends": tasks_depends,
+                "tasks_block": tasks_block,
+                "end_date": end_date.isoformat(),
+                "plan_b": plan_b,
+                "check": check,
+                "team_id": team_id
+            }
+            supabase.table(TABLE_NAME).insert(data).execute()
+            st.success("✅ تم حفظ المهمة بنجاح")
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء الحفظ: {e}")
 
 # ========== عرض الجدول ==========
 st.subheader("📊 Current Tasks")
@@ -87,68 +154,4 @@ try:
     else:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
-    st.error(f"حدث خطأ أثناء تحميل البيانات: {e}")
-
-# ========== تعديل مهمة موجودة ==========
-st.markdown("---")
-st.subheader("✏️ تعديل مهمة موجودة")
-
-# الحصول على كل المهام لجلب الـ IDs
-edit_response = supabase.table(TABLE_NAME).select("*").execute()
-edit_data = edit_response.data
-
-if edit_data:
-    task_options = {f"{item['id']} - {item['task_name']}": item['id'] for item in edit_data}
-    selected_task_label = st.selectbox("اختر المهمة للتعديل", list(task_options.keys()))
-    selected_task_id = task_options[selected_task_label]
-
-    # الحصول على بيانات المهمة المختارة
-    selected_task = next((item for item in edit_data if item["id"] == selected_task_id), None)
-
-    if selected_task:
-        # ملء الخانات تلقائياً
-        project_name = st.text_input("Project Name", selected_task["project_name"])
-        number = st.text_input("Task Number", selected_task["number"])
-        task_name = st.text_input("Task Name", selected_task["task_name"])
-        quantity = st.text_input("Quantity", selected_task["quantity"])
-        category = st.text_input("Category", selected_task["category"])
-        assigned_to = st.text_input("Assigned To", selected_task["assigned_to"])
-        from_text = st.text_input("From", selected_task["from"])
-        to_text = st.text_input("To", selected_task["to"])
-        tasks_depends = st.text_input("Tasks Depends On", selected_task["tasks_depends"])
-        tasks_block = st.text_input("Tasks Blocked By", selected_task["tasks_block"])
-        end_date_raw = selected_task.get("end_date", "")
-        end_date = st.date_input("End Date", pd.to_datetime(end_date_raw) if end_date_raw else pd.Timestamp.today())
-        plan_b = st.text_input("Plan B", selected_task["plan_b"])
-        check = st.selectbox("Check", ["Yes", "No"], index=0 if selected_task["check"] == "Yes" else 1)
-        team_id = st.text_input("Team ID", selected_task["team_id"])
-        description = st.text_area("Description", selected_task["description"], height=100)
-
-        if st.button("🔄 تحديث المهمة"):
-            try:
-                updated_data = {
-                    "project_name": project_name,
-                    "number": number,
-                    "task_name": task_name,
-                    "quantity": quantity,
-                    "category": category,
-                    "assigned_to": assigned_to,
-                    "description": description,
-                    "from": from_text,
-                    "to": to_text,
-                    "tasks_depends": tasks_depends,
-                    "tasks_block": tasks_block,
-                    "end_date": end_date.isoformat() if end_date else "",
-                    "plan_b": plan_b,
-                    "check": check,
-                    "team_id": team_id if team_id else None
-                }
-                supabase.table(TABLE_NAME).update(updated_data).eq("id", selected_task_id).execute()
-                st.success("✅ تم تحديث المهمة بنجاح")
-            except Exception as e:
-                st.error(f"❌ حدث خطأ أثناء التحديث: {e}")
-else:
-    st.info("لا توجد مهام للتعديل.")
-
-
-
+    st.error(f"حدث خطأ أثناء تحميل البيانات: {e
