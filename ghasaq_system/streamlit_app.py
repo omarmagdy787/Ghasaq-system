@@ -23,31 +23,30 @@ supabase: Client = create_client(url, key)
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
-# ========== تنسيق CSS لتصغير الخانات ==========
-# ========== تنسيق CSS لتصغير الخانات ==========
 st.markdown(
     """
     <style>
-        /* تصغير عرض كل حقول الإدخال */
+        /* تحكم في كل input و textarea */
         input[type="text"], textarea {
-            max-width: 100px !important;
-            width: 100px !important;
+            max-width: 250px !important;
+            width: 250px !important;
         }
 
-        /* تصغير selectbox */
+        /* تحكم في التاريخ */
+        .stDateInput input {
+            max-width: 250px !important;
+            width: 250px !important;
+        }
+
+        /* تحكم في selectbox */
         .stSelectbox > div {
-            max-width: 100px !important;
-        }
-
-        /* تصغير date input */
-        .stDateInput {
-            max-width: 100px !important;
+            max-width: 250px !important;
+            width: 250px !important;
         }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 # الأعمدة المطلوبة
 columns = [
     "project_name", "number", "task_name", "quantity", "category", "assigned_to",
