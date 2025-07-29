@@ -78,16 +78,18 @@ if st.button("💾 إضافة المهمة"):
     except Exception as e:
         st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
 
-# عرض البيانات
-st.markdown("---")
-st.subheader("📊 كل المهام")
+# ===== عرض الجدول =====
+st.subheader("📊 Current Tasks")
 
 try:
-    result = supabase.table("tasks").select("*").execute()
-    df = pd.DataFrame(result.data)
-    if not df.empty:
+    response = supabase.table(TABLE_NAME).select("*").execute()
+    data = response.data
+
+    if data:
+        df = pd.DataFrame(data)
         st.dataframe(df)
     else:
-        st.info("لا توجد مهام لعرضها.")
+        st.info("لا توجد بيانات حالياً.")
+
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
