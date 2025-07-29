@@ -26,25 +26,32 @@ st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 import streamlit as st
 # ========== االتنسيق==========
+import streamlit as st
+import streamlit.components.v1 as components
+
+# إنشاء الأعمدة
+col1, col2, col3 = st.columns([0.5, 0.5, 0.5])
+
+# HTML بسيط
 html_code = """
-<div style="display: flex; gap: 10px;">
-  <div style="flex: 1;">
-    <label>الخانة 1</label><br>
-    <input type="text" style="width: 100%;">
-  </div>
-  <div style="flex: 1;">
-    <label>الخانة 2</label><br>
-    <input type="text" style="width: 100%;">
-  </div>
-  <div style="flex: 0.5;">
-    <label>الخانة 3</label><br>
-    <input type="text" style="width: 100%;">
-  </div>
+<div style="background-color:#f4f4f4;padding:10px;border-radius:8px;">
+  <h4 style="color:#333;">محتوى HTML</h4>
+  <p style="font-size:14px;">هذا صندوق HTML داخل العمود</p>
 </div>
 """
-components.html(html_code, height=100)
-# تقسيم الإدخال إلى أعمدة
-col1, col2, col3 = st.columns([0.3, 0.3, 0.5])
+
+# نرندر HTML جوا كل عمود معين
+with col1:
+    st.write("عمود 1")
+    components.html(html_code, height=120)
+
+with col2:
+    st.write("عمود 2")
+    components.html(html_code, height=120)
+
+with col3:
+    st.write("عمود 3")
+    components.html(html_code, height=120)
 
 with col1:
     project_name = st.text_input("Project Name")
