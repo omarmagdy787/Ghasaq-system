@@ -30,18 +30,18 @@ st.markdown(
     <style>
         /* تصغير عرض كل حقول الإدخال */
         input[type="text"], textarea {
-            max-width: 200px !important;
-            width: 200px !important;
+            max-width: 100px !important;
+            width: 100px !important;
         }
 
         /* تصغير selectbox */
         .stSelectbox > div {
-            max-width: 200px !important;
+            max-width: 100px !important;
         }
 
         /* تصغير date input */
         .stDateInput {
-            max-width: 200px !important;
+            max-width: 100px !important;
         }
     </style>
     """,
