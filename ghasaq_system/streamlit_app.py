@@ -56,7 +56,7 @@ with col3:
 # زر الحفظ
 if st.button("💾 إضافة المهمة"):
     try:
-        data = {
+     data = {
             "project_name": project_name,
             "number": number,
             "task_name": task_name,
@@ -64,11 +64,11 @@ if st.button("💾 إضافة المهمة"):
             "category": category,
             "assigned_to": assigned_to,
             "description": description,
-            "from": from_date.isoformat(),
-            "to": to_date.isoformat(),
+            "from": str(from_date) if from_date else "",
+            "to": str(to_date) if to_date else "",
             "tasks_depends": tasks_depends,
             "tasks_block": tasks_block,
-            "end_date": end_date.isoformat(),
+            "end_date": end_date.isoformat() if end_date else "",
             "plan_b": plan_b,
             "check": check,
             "team_id": team_id
