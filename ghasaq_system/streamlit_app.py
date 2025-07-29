@@ -57,7 +57,6 @@ with col2:
     description = st.text_area("Description", height=30)
     from_text = st.text_input("From")
     to_text = st.text_input("To")
-    from_text = st.text_input("From")
     tasks_depends = st.text_input("Tasks Depends On")
     tasks_block = st.text_input("Tasks Blocked By")
 
