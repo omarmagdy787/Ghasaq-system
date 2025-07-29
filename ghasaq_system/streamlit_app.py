@@ -73,7 +73,7 @@ if st.button("💾 إضافة المهمة"):
             "check": check,
             "team_id": team_id
         }
-        supabase.table("tasks").insert(data).execute()
+        supabase.table("mian_tasks").insert(data).execute()
         st.success("✅ تم حفظ المهمة بنجاح")
     except Exception as e:
         st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
