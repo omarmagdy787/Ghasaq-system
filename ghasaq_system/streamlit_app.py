@@ -1,8 +1,11 @@
 import streamlit as st
-import pandas as pd
 from supabase import create_client, Client
+from dotenv import load_dotenv
+import os
+import pandas as pd
 
-# ========== إعداد Supabase ==========
+# ===== تحميل المتغيرات =====
+load_dotenv()
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
@@ -13,78 +16,61 @@ if not url or not key:
 
 supabase: Client = create_client(url, key)
 
-# ========== واجهة التطبيق ==========
-st.set_page_config(page_title="Task Manager", layout="wide")
-st.title("📋 Task Manager System")
+# ===== الواجهة =====
+st.set_page_config(page_title="Main Tasks", layout="wide")
+st.title("📋 Main Tasks Management")
 
-# ========== الأعمدة ==========
-columns = [
-    "project_name", "number", "task_name", "quantity", "category",
-    "assigned_to", "description", "from", "to", "tasks_depends",
-    "tasks_block", "end_date", "plan_b", "check", "team_id"
-]
+# ===== الأعمدة =====
+columns = {
+    "project_name": st.text_input("Project Name"),
+    "number": st.text_input("Number"),
+    "task_name": st.text_input("Task Name"),
+    "quantity": st.text_input("Quantity"),
+    "category": st.text_input("Category"),
+    "assigned_to": st.text_input("Assigned To"),
+    "description": st.text_area("Description"),
+    "from": st.text_input("From"),
+    "to": st.text_input("To"),
+    "tasks_depends": st.text_input("Tasks Depends"),
+    "tasks_block": st.text_input("Tasks Block"),
+    "end_date": st.text_input("End Date"),
+    "plan_b": st.text_input("Plan B"),
+    "check": st.text_input("Check"),
+    "team_id": st.text_input("Team ID")
+}
 
-# ========== مدخلات المستخدم ==========
-with st.form("task_form"):
-    col1, col2, col3 = st.columns(3)
+# ===== الأزرار =====
+col1, col2, col3 = st.columns(3)
 
-    with col1:
-        project_name = st.text_input("📌 Project Name")
-        number = st.text_input("🔢 Number")
-        task_name = st.text_input("📝 Task Name")
-        quantity = st.text_input("📦 Quantity")
-        category = st.text_input("📚 Category")
+with col1:
+    if st.button("➕ Add"):
+        data = {key: value for key, value in columns.items()}
+        supabase.table(TABLE_NAME).insert(data).execute()
+        st.success("✅ Task Added")
 
-    with col2:
-        assigned_to = st.text_input("👤 Assigned To")
-        description = st.text_area("🧾 Description")
-        from_date = st.date_input("📅 From Date")
-        to_date = st.date_input("📅 To Date")
-        end_date = st.date_input("📅 End Date")
+with col2:
+    edit_id = st.text_input("ID to Edit")
+    if st.button("✏️ Edit"):
+        data = {key: value for key, value in columns.items()}
+        supabase.table(TABLE_NAME).update(data).eq("id", edit_id).execute()
+        st.success("✏️ Task Edited")
 
-    with col3:
-        tasks_depends = st.text_input("🔗 Tasks Depends On")
-        tasks_block = st.text_input("⛔ Tasks Block")
-        plan_b = st.text_input("🗂 Plan B")
-        check = st.text_input("✅ Check")
-        team_id = st.text_input("🆔 Team ID")
+with col3:
+    delete_id = st.text_input("ID to Delete")
+    if st.button("🗑️ Delete"):
+        supabase.table(TABLE_NAME).delete().eq("id", delete_id).execute()
+        st.success("🗑️ Task Deleted")
 
-    submitted = st.form_submit_button("➕ Add Task")
+# ===== عرض الجدول =====
+st.subheader("📊 Current Tasks")
+response = supabase.table(TABLE_NAME).select("*").execute()
+data = response.data
 
-    if submitted:
-        data = {
-            "project_name": project_name,
-            "number": number,
-            "task_name": task_name,
-            "quantity": quantity,
-            "category": category,
-            "assigned_to": assigned_to,
-            "description": description,
-            "from": str(from_date),
-            "to": str(to_date),
-            "tasks_depends": tasks_depends,
-            "tasks_block": tasks_block,
-            "end_date": str(end_date),
-            "plan_b": plan_b,
-            "check": check,
-            "team_id": team_id
-        }
-        try:
-            supabase.table(TABLE_NAME).insert(data).execute()
-            st.success("✅ Task Added Successfully!")
-        except Exception as e:
-            st.error(f"❌ Error adding task: {e}")
-
-# ========== عرض البيانات ==========
-st.markdown("### 📊 Current Tasks")
-try:
-    result = supabase.table(TABLE_NAME).select("*").execute()
-    tasks = result.data
-    df = pd.DataFrame(tasks)
-    if not df.empty:
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.info("لا توجد مهام حالياً.")
+if data:
+    df = pd.DataFrame(data)
+    st.dataframe(df)
+else:
+    st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
 
