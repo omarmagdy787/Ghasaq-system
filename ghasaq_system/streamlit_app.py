@@ -63,16 +63,20 @@ with col3:
 
 # ===== عرض الجدول =====
 st.subheader("📊 Current Tasks")
-response = supabase.table(TABLE_NAME).select("*").execute()
-data = response.data
 
-if data:
-    df = pd.DataFrame(data)
-    st.dataframe(df)
-else:
-    st.info("لا توجد بيانات حالياً.")
+try:
+    response = supabase.table(TABLE_NAME).select("*").execute()
+    data = response.data
+
+    if data:
+        df = pd.DataFrame(data)
+        st.dataframe(df)
+    else:
+        st.info("لا توجد بيانات حالياً.")
+
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
+
 
 
 
