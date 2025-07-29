@@ -72,7 +72,8 @@ if data:
 else:
     st.info("لا توجد بيانات حالياً.")
 except Exception as e:
-    st.error("❌ حدث خطأ أثناء تحميل البيانات: " + str(e))
+    st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
+
 
 
 
