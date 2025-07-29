@@ -43,11 +43,11 @@ with col2:
     number = st.text_input("Task Number")
     category = st.text_input("Category")
     assigned_to = st.text_input("Assigned To")
-    from = st.text_input("From")
+    from_text = st.text_input("From")
     tasks_block = st.text_input("Tasks Blocked By")
 
 with col3:
-    to = st.text_input("To")
+    to_text = st.text_input("To")
     end_date = st.date_input("End Date")
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
@@ -64,8 +64,8 @@ if st.button("💾 إضافة المهمة"):
             "category": category,
             "assigned_to": assigned_to,
             "description": description,
-            "from": str(from_date) if from_date else "",
-            "to": str(to_date) if to_date else "",
+            "from": from_text,
+            "to": to_text,
             "tasks_depends": tasks_depends,
             "tasks_block": tasks_block,
             "end_date": end_date.isoformat() if end_date else "",
@@ -73,7 +73,7 @@ if st.button("💾 إضافة المهمة"):
             "check": check,
             "team_id": team_id
         }
-        supabase.table("mian_tasks").insert(data).execute()
+        supabase.table(TABLE_NAME).insert(data).execute()
         st.success("✅ تم حفظ المهمة بنجاح")
     except Exception as e:
         st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
@@ -87,9 +87,10 @@ try:
 
     if data:
         df = pd.DataFrame(data)
-        st.dataframe(df)
+        st.dataframe(df, use_container_width=True)
     else:
         st.info("لا توجد بيانات حالياً.")
 
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
+
