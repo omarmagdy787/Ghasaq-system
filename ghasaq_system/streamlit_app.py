@@ -32,9 +32,9 @@ with col1:
     number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
     quantity = st.text_input("Quantity")
+    category = st.text_input("Category")
 
 with col2:
-    category = st.text_input("Category")
     assigned_to = st.text_input("Assigned To")
     from_text = st.text_input("From")
     to_text = st.text_input("To")
