@@ -28,16 +28,7 @@ import streamlit as st
 # ========== االتنسيق==========
 # إنشاء الأعمدة
 col1, col2, col3 = st.columns([0.5, 0.5, 0.5])
-
 with col1:
-       with st.container():
-        st.markdown(
-            """
-            <div style='background-color:#f4f4f4;padding:10px;border-radius:8px'>
-                <h4 style="color:#333;margin-bottom:10px;">محتوى داخل العمود 1</h4>
-            </div>
-            """, unsafe_allow_html=True
-        )
     project_name = st.text_input("Project Name")
     number = st.text_input("Task Number")
     task_name = st.text_input("Task Name")
