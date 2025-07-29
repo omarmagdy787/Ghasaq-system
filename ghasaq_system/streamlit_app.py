@@ -24,11 +24,24 @@ st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
 # ========== تنسيق CSS لتصغير الخانات ==========
+# ========== تنسيق CSS لتصغير الخانات ==========
 st.markdown(
     """
     <style>
-        .element-container input, .element-container textarea, .stTextInput input {
-            max-width: 250px !important;
+        /* تصغير عرض كل حقول الإدخال */
+        input[type="text"], textarea {
+            max-width: 200px !important;
+            width: 200px !important;
+        }
+
+        /* تصغير selectbox */
+        .stSelectbox > div {
+            max-width: 200px !important;
+        }
+
+        /* تصغير date input */
+        .stDateInput {
+            max-width: 200px !important;
         }
     </style>
     """,
