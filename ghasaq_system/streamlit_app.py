@@ -86,6 +86,9 @@ try:
         st.dataframe(df, use_container_width=True)
     else:
         st.info("لا توجد بيانات حالياً.")
+except Exception as e:
+    st.error(f"حدث خطأ أثناء تحميل البيانات: {e}")
+
 # ========== تعديل مهمة موجودة ==========
 st.markdown("---")
 st.subheader("✏️ تعديل مهمة موجودة")
