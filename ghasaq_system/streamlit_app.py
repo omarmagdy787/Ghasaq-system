@@ -71,7 +71,7 @@ if st.button("💾 إضافة المهمة"):
             "end_date": end_date.isoformat() if end_date else "",
             "plan_b": plan_b,
             "check": check,
-            "team_id": team_id
+            "team_id": team_id if team_id else None
         }
         supabase.table(TABLE_NAME).insert(data).execute()
         st.success("✅ تم حفظ المهمة بنجاح")
