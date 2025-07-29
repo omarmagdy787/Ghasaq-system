@@ -23,68 +23,71 @@ supabase: Client = create_client(url, key)
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
-# ========== تنسيق الأعمدة ==========
-col1, col2, col3 = st.columns([2, 2, 1])
+# الأعمدة المطلوبة
+columns = [
+    "project_name", "number", "task_name", "quantity", "category", "assigned_to",
+    "description", "from", "to", "tasks_depends", "tasks_block", "end_date",
+    "plan_b", "check", "team_id"
+]
+
+# تقسيم الإدخال إلى أعمدة
+col1, col2, col3 = st.columns(3)
 with col1:
-    name = st.text_input("اسم المهمة")
+    project_name = st.text_input("Project Name")
+    task_name = st.text_input("Task Name")
+    quantity = st.text_input("Quantity")
+    description = st.text_area("Description", height=50)
+    tasks_depends = st.text_input("Tasks Depends On")
+
 with col2:
-    description = st.text_input("الوصف", max_chars=100)
+    number = st.text_input("Task Number")
+    category = st.text_input("Category")
+    assigned_to = st.text_input("Assigned To")
+    from_date = st.date_input("From")
+    tasks_block = st.text_input("Tasks Blocked By")
+
 with col3:
-    status = st.selectbox("الحالة", ["لم تبدأ", "قيد التنفيذ", "منتهية"])
+    to_date = st.date_input("To")
+    end_date = st.date_input("End Date")
+    plan_b = st.text_input("Plan B")
+    check = st.selectbox("Check", ["Yes", "No"])
+    team_id = st.text_input("Team ID")
 
-# ========== الأزرار ==========
-col4, col5, col6 = st.columns([1, 1, 1])
-with col4:
-    if st.button("➕ إضافة"):
-        try:
-            if name:
-                supabase.table(TABLE_NAME).insert({"name": name, "description": description, "status": status}).execute()
-                st.success("✅ تم الإضافة بنجاح")
-            else:
-                st.warning("⚠️ من فضلك أدخل اسم المهمة")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الإضافة: {e}")
+# زر الحفظ
+if st.button("💾 إضافة المهمة"):
+    try:
+        data = {
+            "project_name": project_name,
+            "number": number,
+            "task_name": task_name,
+            "quantity": quantity,
+            "category": category,
+            "assigned_to": assigned_to,
+            "description": description,
+            "from": from_date.isoformat(),
+            "to": to_date.isoformat(),
+            "tasks_depends": tasks_depends,
+            "tasks_block": tasks_block,
+            "end_date": end_date.isoformat(),
+            "plan_b": plan_b,
+            "check": check,
+            "team_id": team_id
+        }
+        supabase.table("tasks").insert(data).execute()
+        st.success("✅ تم حفظ المهمة بنجاح")
+    except Exception as e:
+        st.error(f"❌ حدث خطأ أثناء الحفظ: {e}")
 
-with col5:
-    if st.button("✏️ تعديل"):
-        try:
-            if name:
-                supabase.table(TABLE_NAME).update({"description": description, "status": status}).eq("name", name).execute()
-                st.success("✅ تم التعديل بنجاح")
-            else:
-                st.warning("⚠️ من فضلك أدخل اسم المهمة للتعديل")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء التعديل: {e}")
-
-with col6:
-    if st.button("🗑️ حذف"):
-        try:
-            if name:
-                supabase.table(TABLE_NAME).delete().eq("name", name).execute()
-                st.success("✅ تم الحذف بنجاح")
-            else:
-                st.warning("⚠️ من فضلك أدخل اسم المهمة للحذف")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحذف: {e}")
-
-# ========== عرض البيانات ==========
+# عرض البيانات
 st.markdown("---")
-st.subheader("📄 كل المهام")
+st.subheader("📊 كل المهام")
 
 try:
-    response = supabase.table(TABLE_NAME).select("*").execute()
-    data = response.data
-    df = pd.DataFrame(data)
+    result = supabase.table("tasks").select("*").execute()
+    df = pd.DataFrame(result.data)
     if not df.empty:
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df)
     else:
-        st.info("ℹ️ لا توجد بيانات حالياً")
+        st.info("لا توجد مهام لعرضها.")
 except Exception as e:
     st.error(f"❌ حدث خطأ أثناء تحميل البيانات: {e}")
-
-
-
-
-
-
-
