@@ -28,20 +28,20 @@ st.markdown(
     <style>
         /* تحكم في كل input و textarea */
         input[type="text"], textarea {
-            max-width: 250px !important;
-            width: 250px !important;
+            max-width: 100px !important;
+            width: 100px !important;
         }
 
         /* تحكم في التاريخ */
         .stDateInput input {
-            max-width: 250px !important;
-            width: 250px !important;
+            max-width: 100px !important;
+            width: 100px !important;
         }
 
         /* تحكم في selectbox */
         .stSelectbox > div {
-            max-width: 250px !important;
-            width: 250px !important;
+            max-width: 100px !important;
+            width: 100px !important;
         }
     </style>
     """,
