@@ -43,7 +43,7 @@ columns = [
 ]
 
 # تقسيم الإدخال إلى أعمدة
-col1, col2, col3 = st.columns([1, 1, 1])
+col1, col2, col3 = st.columns([1.2, 1.2, 1])
 
 with col1:
     project_name = st.text_input("Project Name")
@@ -54,7 +54,6 @@ with col1:
     assigned_to = st.text_input("Assigned To")
 
 with col2:
-    description = st.text_area("Description", height=30)
     from_text = st.text_input("From")
     to_text = st.text_input("To")
     tasks_depends = st.text_input("Tasks Depends On")
@@ -65,6 +64,7 @@ with col3:
     plan_b = st.text_input("Plan B")
     check = st.selectbox("Check", ["Yes", "No"])
     team_id = st.text_input("Team ID")
+    description = st.text_area("Description", height=30)
 
 # ========== زر الحفظ ==========
 st.markdown("---")
