@@ -112,7 +112,8 @@ with col_add:
 with col_clear:
     if st.button("🧹 تفريغ الحقول"):
         st.session_state.clear()
-        st.experimental_rerun()
+        st.rerun()
+
 
 # ========== عرض الجدول ==========
 st.markdown("### 📊 Current Tasks")
