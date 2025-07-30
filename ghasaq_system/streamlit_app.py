@@ -59,7 +59,7 @@ with col3:
 
 # ========== أزرار الإضافة والتحديث ==========
 st.markdown("---")
-col_update, col_add = st.columns([1, 1])
+col_update, col_add, col_clear = st.columns([1, 1, 1])
 
 with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task:
@@ -109,6 +109,11 @@ with col_add:
         except Exception as e:
             st.error(f"❌ خطأ أثناء الحفظ: {e}")
 
+with col_clear:
+    if st.button("🧹 تفريغ الحقول"):
+        st.session_state.clear()
+        st.experimental_rerun()
+
 # ========== عرض الجدول ==========
 st.markdown("### 📊 Current Tasks")
 
@@ -122,4 +127,5 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+
 
