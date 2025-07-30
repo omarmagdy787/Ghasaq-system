@@ -31,7 +31,7 @@ for col in df.columns:
     gb.configure_column(col, hide=(col not in main_columns))
 
 # تمكين الاختيار والصفحات
-gb.configure_selection(selection_mode="single", use_checkbox=True)
+gb.configure_selection(selection_mode="single", use_checkbox=False)
 gb.configure_pagination(paginationAutoPageSize=True)
 grid_options = gb.build()
 
