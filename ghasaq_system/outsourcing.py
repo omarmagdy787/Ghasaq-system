@@ -25,10 +25,3 @@ outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض الجدول
 st.dataframe(outsourcing_df)
-
-
-# عرض البيانات
-st.dataframe(outsourcing_df, use_container_width=True)
-
-
-
