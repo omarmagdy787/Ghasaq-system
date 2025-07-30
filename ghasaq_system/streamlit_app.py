@@ -19,9 +19,22 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
-# ========== أزرار الإضافة والتحديث ==========
+
+# ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
+edit_response = supabase.table(TABLE_NAME).select("*").execute()
+edit_data = edit_response.data
+
+task_options = {f"{item['id']} - {item['task_name']}": item for item in edit_data} if edit_data else {}
+
+# ================= اختيار ID =================
+st.markdown("### ✏ تعديل مهمة موجودة")
+selected_label = st.selectbox("اختر المهمة للتعديل", [""] + list(task_options.keys()), key="selected_label")
+selected_task = task_options[selected_label] if selected_label else {}
+
+# ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
 col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
+
 with col_delete:
     if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
         try:
@@ -38,6 +51,7 @@ with col_delete:
             st.rerun()
         except Exception as e:
             st.error(f"❌ خطأ أثناء الحذف: {e}")
+
 with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task:
         try:
@@ -96,16 +110,6 @@ with col_clear:
             if key in st.session_state:
                 del st.session_state[key]
         st.rerun()
-# ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
-edit_response = supabase.table(TABLE_NAME).select("*").execute()
-edit_data = edit_response.data
-
-task_options = {f"{item['id']} - {item['task_name']}": item for item in edit_data} if edit_data else {}
-
-# ================= اختيار ID =================
-st.markdown("### ✏ تعديل مهمة موجودة")
-selected_label = st.selectbox("اختر المهمة للتعديل", [""] + list(task_options.keys()), key="selected_label")
-selected_task = task_options[selected_label] if selected_label else {}
 
 # ========== إنشاء الأعمدة للخانات ==========
 col1, col2, col3 = st.columns([0.5, 0.5, 1])
@@ -146,5 +150,4 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
-
 
