@@ -17,11 +17,16 @@ try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
 
-   df = pd.DataFrame(data)
-if not df.empty:
-    # عرض البيانات
-else:
-    st.info("لا توجد بيانات حالياً.")
+    df = pd.DataFrame(data)
+    if not df.empty:
+        gb = GridOptionsBuilder.from_dataframe(df)
+        gb.configure_pagination()
+        gridOptions = gb.build()
+        AgGrid(df, gridOptions=gridOptions, height=400, fit_columns_on_grid_load=True)
+    else:
+        st.info("لا توجد بيانات حالياً.")
+except Exception as e:
+    st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
 
 
         # إعداد الخيارات
