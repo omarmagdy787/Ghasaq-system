@@ -10,6 +10,8 @@ TABLE_NAME = "main_tasks"
 supabase = create_client(url, key)
 
 st.markdown("### 📊 Current Tasks")
+df_cleaned = df.applymap(lambda x: str(x).replace("\n", " ") if pd.notnull(x) else x)
+st.dataframe(df_cleaned, use_container_width=True)
 
 try:
     # جلب البيانات من Supabase
