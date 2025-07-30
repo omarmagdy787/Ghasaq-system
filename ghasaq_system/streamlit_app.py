@@ -53,7 +53,8 @@ with col3:
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
     plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
-    team_id = st.text_input("Team ID", value=selected_task.get("team_id", ""), key="team_id")
+    # ✅ team_id ثابت "1"
+    team_id = "1"
     description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
@@ -101,8 +102,7 @@ with col_update:
                 "end_date": end_date.isoformat(),
                 "plan_b": plan_b,
                 "check": check,
-                if len(team_id) == 36 and "-" in team_id:
-                 data_to_insert["team_id"] = team_id
+                "team_id": team_id,
                 "description": description
             }).eq("id", selected_task["id"]).execute()
             st.success("✅ تم تحديث المهمة بنجاح")
@@ -149,4 +149,5 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+
 
