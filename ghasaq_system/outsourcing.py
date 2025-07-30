@@ -27,7 +27,7 @@ if not df.empty and "category" in df.columns:
     df_outsourcing = df[df["category"] == "outsourcing"]
 
     # تحديد الأعمدة المطلوبة فقط
-    required_columns = ["task number", "task name", "description", "from", "to", "check"]
+    required_columns = ["number", "task_name", "description", "from", "to", "check"]
     available_columns = [col for col in required_columns if col in df_outsourcing.columns]
     df_outsourcing = df_outsourcing[available_columns]
 
