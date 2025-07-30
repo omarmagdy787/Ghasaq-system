@@ -19,7 +19,7 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
-
+st.title("📋 TASKS Mangments")
 # ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
 edit_response = supabase.table(TABLE_NAME).select("*").execute()
 edit_data = edit_response.data
