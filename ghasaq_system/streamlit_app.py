@@ -42,13 +42,16 @@ response = AgGrid(
     theme="streamlit"
 )
 
-# استخراج الصف المختار
+# استخراج الصف المختار من AgGrid
 selected_rows = response["selected_rows"]
 
-if len(selected_rows) > 0:
-    selected_row = selected_rows[0]  # ده dict
-    # تقدر تكمل باستخدام selected_row زي:
-    st.write("الصف المختار:", selected_row)
+# التحقق إن فيه صف فعلاً متعلم عليه
+if selected_rows:
+    selected_row = selected_rows[0]  # الصف الأول المختار (ده dict)
+
+    # عرضه في جدول جديد
+    st.write("📝 التفاصيل:")
+    st.dataframe(pd.DataFrame([selected_row]))
     with st.expander("📋 تفاصيل فرعية (تظهر عند اختيار صف)"):
         st.write(f"**📦 الكمية:** {selected_row.get('quantity', '—')}")
         st.write(f"**🏷️ الفئة:** {selected_row.get('category', '—')}")
