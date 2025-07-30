@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 from supabase import create_client
 import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 # ---------- إعداد Supabase ----------
 url = st.secrets["url"]
@@ -28,25 +29,34 @@ if not df.empty and "category" in df.columns:
 
     # تحديد الأعمدة المطلوبة فقط
     required_columns = ["id", "number", "task_name", "description", "from", "to", "check"]
-    available_columns = [col for col in required_columns if col in df_outsourcing.columns]
-    df_outsourcing = df_outsourcing[available_columns]
+    df_outsourcing = df_outsourcing[required_columns]
 
-    # عرض الجدول للتعديل
-    for i, row in df_outsourcing.iterrows():
-        st.markdown("---")
-        st.write(f"**Task #{row['number']} - {row['task_name']}**")
-        st.write(f"{row['description']}")
-        check_value = st.selectbox(
-            f"Check for Task #{row['number']}",
-            ["Yes", "No"],
-            index=0 if row["check"] == "Yes" else 1,
-            key=f"check_{row['id']}"
-        )
-        if st.button(f"تحديث Task #{row['number']}", key=f"update_{row['id']}"):
-            supabase.table(TABLE_NAME).update({"check": check_value}).eq("id", row["id"]).execute()
-            st.success(f"✅ تم تحديث المهمة #{row['number']} إلى {check_value}")
+    # ---------- إعداد AgGrid ----------
+    gb = GridOptionsBuilder.from_dataframe(df_outsourcing)
+    gb.configure_column("check", editable=True, cellEditor='agSelectCellEditor', cellEditorParams={'values': ['Yes', 'No']})
+    gb.configure_grid_options(domLayout='normal')
+    grid_options = gb.build()
+
+    st.markdown("### ✍️ اضغط على الخلية لتعديل عمود check:")
+    grid_response = AgGrid(
+        df_outsourcing,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.MANUAL,
+        fit_columns_on_grid_load=True,
+        use_container_width=True,
+        enable_enterprise_modules=False
+    )
+
+    updated_df = grid_response["data"]
+
+    if st.button("🔁 تحديث البيانات"):
+        for index, row in updated_df.iterrows():
+            supabase.table(TABLE_NAME).update({"check": row["check"]}).eq("id", row["id"]).execute()
+        st.success("✅ تم تحديث البيانات بنجاح!")
+
 else:
     st.warning("لا توجد بيانات أو العمود 'category' غير موجود.")
+
 
 
 
