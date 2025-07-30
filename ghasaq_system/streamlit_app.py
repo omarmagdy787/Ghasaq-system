@@ -42,15 +42,13 @@ grid_response = AgGrid(
 selected_row = pd.DataFrame(grid_response["selected_rows"])
 
 if not selected_row.empty:
-    st.subheader("📌 تفاصيل الطلب")
-    st.write(f"**اسم العميل:** {selected_row.iloc[0]['client_name']}")
-    st.write(f"**رقم الهاتف:** {selected_row.iloc[0]['phone']}")
-    st.write(f"**المنطقة:** {selected_row.iloc[0]['area']}")
-    st.write(f"**نوع الباب:** {selected_row.iloc[0]['door_type']}")
-    st.write(f"**اللون:** {selected_row.iloc[0]['color']}")
-    st.write(f"**التاريخ:** {selected_row.iloc[0]['date']}")
-    st.write(f"**الملاحظات:** {selected_row.iloc[0]['notes']}")
-
+    with st.expander("📋 تفاصيل فرعية (تظهر عند الضغط)"):
+        st.write(f"**📦 الكمية:** {selected_row.iloc[0]['quantity']}")
+        st.write(f"**🏷️ الفئة:** {selected_row.iloc[0]['category']}")
+        st.write(f"**📝 الوصف:** {selected_row.iloc[0]['description']}")
+        st.write(f"**🔗 يعتمد على:** {selected_row.iloc[0]['tasks_depends']}")
+        st.write(f"**⛔ محجوب بسبب:** {selected_row.iloc[0]['tasks_block']}")
+        st.write(f"**🛠️ خطة بديلة:** {selected_row.iloc[0]['plan_b']}")
 
 
 
