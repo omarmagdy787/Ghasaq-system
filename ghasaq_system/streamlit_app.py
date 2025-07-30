@@ -1,154 +1,73 @@
 import streamlit as st
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
+from supabase import create_client
 import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
-# تحميل متغيرات البيئة
-load_dotenv()
-
+# إعداد الاتصال بـ Supabase
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
 
-if not url or not key:
-    st.error("❌ تأكد من وجود url و key في ملف .env")
-    st.stop()
+supabase = create_client(url, key)
 
-supabase: Client = create_client(url, key)
-
-st.set_page_config(page_title="Ghasaq System", layout="wide")
-st.title("📋 Ghasaq System")
-
-# ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
-edit_response = supabase.table(TABLE_NAME).select("*").execute()
-edit_data = edit_response.data
-task_options = {f"{item['id']} - {item['task_name']}": item for item in edit_data} if edit_data else {}
-
-# ================= اختيار المهمة =================
-st.markdown("### ✏ تعديل مهمة موجودة")
-selected_label = st.selectbox("اختر المهمة للتعديل", [""] + list(task_options.keys()), key="selected_label")
-selected_task = task_options[selected_label] if selected_label else {}
-
-# ========== الحقول ==========
-col1, col2, col3 = st.columns([0.5, 0.5, 1])
-
-with col1:
-    project_name = st.text_input("Project Name", value=selected_task.get("project_name", ""), key="project_name")
-    number = st.text_input("Task Number", value=selected_task.get("number", ""), key="number")
-    task_name = st.text_input("Task Name", value=selected_task.get("task_name", ""), key="task_name")
-    quantity = st.text_input("Quantity", value=selected_task.get("quantity", ""), key="quantity")
-    category = st.text_input("Category", value=selected_task.get("category", ""), key="category")
-
-with col2:
-    assigned_to = st.text_input("Assigned To", value=selected_task.get("assigned_to", ""), key="assigned_to")
-    from_text = st.text_input("From", value=selected_task.get("from", ""), key="from_text")
-    to_text = st.text_input("To", value=selected_task.get("to", ""), key="to_text")
-    tasks_depends = st.text_input("Tasks Depends On", value=selected_task.get("tasks_depends", ""), key="tasks_depends")
-    tasks_block = st.text_input("Tasks Blocked By", value=selected_task.get("tasks_block", ""), key="tasks_block")
-
-with col3:
-    raw_date = selected_task.get("end_date")
-    safe_end_date = pd.to_datetime(raw_date, errors="coerce") if raw_date else pd.Timestamp.today()
-    end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
-    plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
-    check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
-    team_id_input = st.text_input("Team ID", value=selected_task.get("team_id", "") or "")
-    team_id = team_id_input if team_id_input.strip() != "" else None
-    description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
-
-# ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
-st.markdown("---")
-col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
-
-with col_add:
-    if st.button("💾 إضافة المهمة"):
-        try:
-            supabase.table(TABLE_NAME).insert({
-                "project_name": project_name or None,
-                "number": number or None,
-                "task_name": task_name or None,
-                "quantity": quantity or None,
-                "category": category or None,
-                "assigned_to": assigned_to or None,
-                "from": from_text or None,
-                "to": to_text or None,
-                "tasks_depends": tasks_depends or None,
-                "tasks_block": tasks_block or None,
-                "end_date": end_date.isoformat() if end_date else None,
-                "plan_b": plan_b or None,
-                "check": check or None,
-                "team_id": team_id,
-                "description": description or None
-            }).execute()
-            st.success("✅ تم حفظ المهمة بنجاح")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحفظ: {e}")
-
-with col_update:
-    if st.button("🔄 تحديث المهمة") and selected_task:
-        try:
-            supabase.table(TABLE_NAME).update({
-                "project_name": project_name or None,
-                "number": number or None,
-                "task_name": task_name or None,
-                "quantity": quantity or None,
-                "category": category or None,
-                "assigned_to": assigned_to or None,
-                "from": from_text or None,
-                "to": to_text or None,
-                "tasks_depends": tasks_depends or None,
-                "tasks_block": tasks_block or None,
-                "end_date": end_date.isoformat() if end_date else None,
-                "plan_b": plan_b or None,
-                "check": check or None,
-                "team_id": team_id,
-                "description": description or None
-            }).eq("id", selected_task["id"]).execute()
-            st.success("✅ تم تحديث المهمة بنجاح")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء التحديث: {e}")
-
-with col_delete:
-    if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
-        try:
-            task_id = task_options[st.session_state.selected_label]["id"]
-            supabase.table(TABLE_NAME).delete().eq("id", task_id).execute()
-            st.success("✅ تم حذف المهمة بنجاح")
-            for key in [
-                "project_name", "number", "task_name", "quantity", "category",
-                "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
-                "end_date", "plan_b", "check", "team_id", "description", "selected_label"
-            ]:
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحذف: {e}")
-
-with col_clear:
-    if st.button("🧹 تفريغ الحقول"):
-        for key in [
-            "project_name", "number", "task_name", "quantity", "category",
-            "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
-            "end_date", "plan_b", "check", "team_id", "description", "selected_label"
-        ]:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.rerun()
-
-# ========== عرض الجدول ==========
-st.markdown("### 📊 Current Tasks")
-try:
+# استرجاع البيانات من supabase
+@st.cache_data
+def get_data():
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
-    if data:
-        df = pd.DataFrame(data)
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.info("لا توجد بيانات حالياً.")
-except Exception as e:
-    st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+    return pd.DataFrame(data)
+
+st.title("📋 المهام - Dusk System")
+
+df = get_data()
+
+# تحديد الأعمدة الأساسية فقط للعرض في الجدول
+main_columns = ["project_name", "number", "task_name", "category", "assigned_to", "end_date", "check"]
+df_main = df[main_columns]
+
+# إعداد AG Grid
+gb = GridOptionsBuilder.from_dataframe(df_main)
+gb.configure_selection("single", use_checkbox=True)
+grid_options = gb.build()
+
+# عرض الجدول
+grid_response = AgGrid(
+    df_main,
+    gridOptions=grid_options,
+    update_mode=GridUpdateMode.SELECTION_CHANGED,
+    height=400,
+    fit_columns_on_grid_load=True,
+    theme='material'
+)
+
+selected = grid_response["selected_rows"]
+
+# عرض التفاصيل إذا تم اختيار صف
+if selected:
+    selected_row = selected[0]
+    task_number = selected_row["number"]
+    
+    # نحصل على السطر الكامل من الداتا الأصلية
+    full_row = df[df["number"] == task_number].iloc[0]
+
+    with st.expander("📄 التفاصيل الكاملة"):
+        st.markdown(f"""
+        **📌 المشروع:** {full_row["project_name"]}  
+        **🔢 رقم المهمة:** {full_row["number"]}  
+        **📝 اسم المهمة:** {full_row["task_name"]}  
+        **📦 الكمية:** {full_row["quantity"]}  
+        **📂 التصنيف:** {full_row["category"]}  
+        **👷 المعين له:** {full_row["assigned_to"]}  
+        **🧾 الوصف:** {full_row["description"]}  
+        **📍 من:** {full_row["from"]}  
+        **📍 إلى:** {full_row["to"]}  
+        **🔗 يعتمد على:** {full_row["tasks_depends"]}  
+        **🧱 يعطل:** {full_row["tasks_block"]}  
+        **📅 تاريخ النهاية:** {full_row["end_date"]}  
+        **🔄 خطة بديلة:** {full_row["plan_b"]}  
+        **✅ تحقق:** {full_row["check"]}  
+        """)
+
 
 
 
