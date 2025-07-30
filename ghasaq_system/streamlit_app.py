@@ -11,36 +11,14 @@ supabase = create_client(url, key)
 
 st.markdown("### 📊 Current Tasks")
 
+# ========== عرض الجدول ==========
+st.markdown("### 📊 Current Tasks")
 try:
-    # جلب البيانات من Supabase
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
-
-    df = pd.DataFrame(data)
-    if not df.empty:
-        # تنظيف البيانات من أي أسطر جديدة
-        df_cleaned = df.applymap(lambda x: str(x).replace("\n", " ") if pd.notnull(x) else x)
-
-        # إعداد خيارات الجدول
-        gb = GridOptionsBuilder.from_dataframe(df_cleaned)
-        gb.configure_default_column(
-            resizable=True,
-            wrapText=True,
-            autoHeight=True,
-            editable=False,
-        )
-        gb.configure_grid_options(domLayout='normal')
-
-        grid_options = gb.build()
-
-        AgGrid(
-            df_cleaned,
-            gridOptions=grid_options,
-            height=700,
-            fit_columns_on_grid_load=True,
-            use_container_width=True,
-            theme="material",
-        )
+    if data:
+        df = pd.DataFrame(data)
+        st.dataframe(df, width=800, height=400)  # جدول بحجم ثابت
     else:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
