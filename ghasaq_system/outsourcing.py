@@ -1,11 +1,14 @@
 import streamlit as st
+from supabase import create_client, Client
+from dotenv import load_dotenv
+import os
 import pandas as pd
-from supabase import create_client
 
-# الاتصال بـ Supabase
+# تحميل متغيرات البيئة
+load_dotenv()
+
 url = st.secrets["url"]
 key = st.secrets["key"]
-supabase = create_client(url, key)
 
 TABLE_NAME = "main_tasks"  # نقرأ من جدول المهام الأساسي
 
