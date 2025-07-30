@@ -40,7 +40,7 @@ grid_response = AgGrid(
     theme="streamlit"
 )
 
-selected_row = grid_response["selected_rows"]
+if not selected_row.empty:
 
 # لو تم اختيار صف، نعرض التفاصيل
 if selected_row:
