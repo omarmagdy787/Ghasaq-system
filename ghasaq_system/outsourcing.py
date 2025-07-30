@@ -1,41 +1,34 @@
 import streamlit as st
+from streamlit import st_autorefresh
 from supabase import create_client
 import pandas as pd
-from streamlit_autorefresh import st_autorefresh
 
-# عمل تحديث تلقائي كل 5 ثواني
+# ⏱️ تحديث تلقائي كل 5 ثواني
 st_autorefresh(interval=5000, key="refresh")
 
 # إعداد الاتصال بـ Supabase
-url = st.secrets["url"]
-key = st.secrets["key"]
-TABLE_NAME = "main_tasks"
-
+url   = st.secrets["url"]
+key   = st.secrets["key"]
+TABLE = "main_tasks"
 supabase = create_client(url, key)
 
-# تحميل البيانات
-response = supabase.table(TABLE_NAME).select("*").execute()
-data = response.data
+st.title("Outsourcing Dashboard")
 
-# تحويل البيانات إلى DataFrame
-df = pd.DataFrame(data)
+# جلب كل البيانات من الجدول
+response = supabase.table(TABLE).select("*").execute()
+df       = pd.DataFrame(response.data)
 
-# التأكد إن عمود "status" موجود
-if "status" in df.columns:
-    # فلترة على حسب الحالة (outsourcing)
+# تأكد وجود عمود category ثم فرّغ فقط outsourcing
+if "category" in df.columns:
     outsourcing_df = df[df["category"] == "outsourcing"]
-
-    # اختيار الأعمدة اللي انت عايزها بس
-    selected_columns = ["task number", "task name", "description", "from", "to", "check"]
-    filtered_df = outsourcing_df[selected_columns]
-
-    # عرض الجدول
-    st.dataframe(filtered_df, use_container_width=True)
+    
+    # الأعمدة التي نريد عرضها
+    required_columns = ["task number", "task name", "description", "from", "to", "check"]
+    missing = [c for c in required_columns if c not in outsourcing_df.columns]
+    
+    if missing:
+        st.error(f"❌ الأعمدة التالية غير موجودة في البيانات: {missing}")
+    else:
+        st.dataframe(outsourcing_df[required_columns], use_container_width=True)
 else:
-    st.warning("⚠️ جدول البيانات لا يحتوي على عمود 'category'")
-
-# فلترة على حسب الحالة (مثلاً outsourcing)
-outsourcing_df = df[df["category"] == "outsourcing"]
-
-# عرض الجدول
-st.dataframe(outsourcing_df)
+    st.error("❌ البيانات لا تحتوي على عمود 'category'")
