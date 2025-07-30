@@ -17,8 +17,12 @@ try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
 
-    if not df.empty:
-        df = pd.DataFrame(data)
+   df = pd.DataFrame(data)
+if not df.empty:
+    # عرض البيانات
+else:
+    st.info("لا توجد بيانات حالياً.")
+
 
         # إعداد الخيارات
         gb = GridOptionsBuilder.from_dataframe(df)
