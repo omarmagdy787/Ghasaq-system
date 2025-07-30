@@ -43,20 +43,19 @@ grid_response = AgGrid(
     theme="streamlit"
 )
 
-selected_rows = response["selected_rows"]
+selected_rows = grid_response["selected_rows"]
 
 if selected_rows is not None and len(selected_rows) > 0:
     selected_row = selected_rows[0]
     with st.expander("📋 تفاصيل فرعية (تظهر عند اختيار صف)"):
-        st.write(f"**📦 الكمية:** {row.get('quantity', '—')}")
-        st.write(f"**🏷️ الفئة:** {row.get('category', '—')}")
-        st.write(f"**📝 الوصف:** {row.get('description', '—')}")
-        st.write(f"**🔗 يعتمد على:** {row.get('tasks_depends', '—')}")
-        st.write(f"**⛔ محجوب بسبب:** {row.get('tasks_block', '—')}")
-        st.write(f"**🛠️ خطة بديلة:** {row.get('plan_b', '—')}")
+        st.write(f"**📦 الكمية:** {selected_row.get('quantity', '—')}")
+        st.write(f"**🏷️ الفئة:** {selected_row.get('category', '—')}")
+        st.write(f"**📝 الوصف:** {selected_row.get('description', '—')}")
+        st.write(f"**🔗 يعتمد على:** {selected_row.get('tasks_depends', '—')}")
+        st.write(f"**⛔ محجوب بسبب:** {selected_row.get('tasks_block', '—')}")
+        st.write(f"**🛠️ خطة بديلة:** {selected_row.get('plan_b', '—')}")
 else:
     st.info("👈 اختر صفًا من الجدول عن طريق المربع الجانبي لعرض التفاصيل الفرعية.")
-  
 
 
 
