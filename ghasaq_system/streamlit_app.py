@@ -30,18 +30,6 @@ for col in df.columns:
     gb.configure_column(col, hide=(col not in main_columns))
 grid_options = gb.build()
 
-# عرض AgGrid
-st.subheader("🧾 المهام الرئيسية")
-grid_response = AgGrid(
-    df,
-    gridOptions=grid_options,
-    update_mode=GridUpdateMode.SELECTION_CHANGED,
-    fit_columns_on_grid_load=True,
-    enable_enterprise_modules=False,
-    height=350,
-    width="100%",
-    theme="streamlit"
-)
 
 response = AgGrid(df, gridOptions=grid_options, update_mode='SELECTION_CHANGED')
 
