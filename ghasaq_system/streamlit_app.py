@@ -21,8 +21,23 @@ st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 # ========== أزرار الإضافة والتحديث ==========
 st.markdown("---")
-col_update, col_add, col_clear = st.columns([1, 1, 1])
-
+col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
+with col_delete:
+    if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
+        try:
+            task_id = task_options[st.session_state.selected_label]["id"]
+            supabase.table(TABLE_NAME).delete().eq("id", task_id).execute()
+            st.success("✅ تم حذف المهمة بنجاح")
+            for key in [
+                "project_name", "number", "task_name", "quantity", "category",
+                "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
+                "end_date", "plan_b", "check", "team_id", "description", "selected_label"
+            ]:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء الحذف: {e}")
 with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task:
         try:
