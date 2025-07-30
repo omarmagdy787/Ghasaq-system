@@ -17,8 +17,11 @@ if not url or not key:
 
 supabase: Client = create_client(url, key)
 
-
 st.title("Outsourcing Dashboard")
+
+# زر لتحديث البيانات
+if st.button("🔄 تحديث البيانات"):
+    st.cache_data.clear()
 
 # تحميل البيانات من Supabase وتخزينها مؤقتًا
 @st.cache_data
@@ -34,3 +37,4 @@ outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض البيانات
 st.dataframe(outsourcing_df, use_container_width=True)
+
