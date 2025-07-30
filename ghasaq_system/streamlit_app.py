@@ -53,7 +53,6 @@ with col3:
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
     plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
-    # ✅ team_id ثابت "1"
     team_id = "1"
     description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
 
@@ -65,21 +64,21 @@ with col_add:
     if st.button("💾 إضافة المهمة"):
         try:
             supabase.table(TABLE_NAME).insert({
-                "project_name": project_name,
-                "number": number,
-                "task_name": task_name,
-                "quantity": quantity,
-                "category": category,
-                "assigned_to": assigned_to,
-                "from": from_text,
-                "to": to_text,
-                "tasks_depends": tasks_depends,
-                "tasks_block": tasks_block,
-                "end_date": end_date.isoformat(),
-                "plan_b": plan_b,
-                "check": check,
+                "project_name": project_name or None,
+                "number": number or None,
+                "task_name": task_name or None,
+                "quantity": quantity or None,
+                "category": category or None,
+                "assigned_to": assigned_to or None,
+                "from": from_text or None,
+                "to": to_text or None,
+                "tasks_depends": tasks_depends or None,
+                "tasks_block": tasks_block or None,
+                "end_date": end_date.isoformat() if end_date else None,
+                "plan_b": plan_b or None,
+                "check": check or None,
                 "team_id": team_id,
-                "description": description
+                "description": description or None
             }).execute()
             st.success("✅ تم حفظ المهمة بنجاح")
         except Exception as e:
@@ -89,21 +88,21 @@ with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task:
         try:
             supabase.table(TABLE_NAME).update({
-                "project_name": project_name,
-                "number": number,
-                "task_name": task_name,
-                "quantity": quantity,
-                "category": category,
-                "assigned_to": assigned_to,
-                "from": from_text,
-                "to": to_text,
-                "tasks_depends": tasks_depends,
-                "tasks_block": tasks_block,
-                "end_date": end_date.isoformat(),
-                "plan_b": plan_b,
-                "check": check,
+                "project_name": project_name or None,
+                "number": number or None,
+                "task_name": task_name or None,
+                "quantity": quantity or None,
+                "category": category or None,
+                "assigned_to": assigned_to or None,
+                "from": from_text or None,
+                "to": to_text or None,
+                "tasks_depends": tasks_depends or None,
+                "tasks_block": tasks_block or None,
+                "end_date": end_date.isoformat() if end_date else None,
+                "plan_b": plan_b or None,
+                "check": check or None,
                 "team_id": team_id,
-                "description": description
+                "description": description or None
             }).eq("id", selected_task["id"]).execute()
             st.success("✅ تم تحديث المهمة بنجاح")
         except Exception as e:
@@ -149,5 +148,6 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+
 
 
