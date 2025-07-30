@@ -43,7 +43,14 @@ grid_response = AgGrid(
     theme="streamlit"
 )
 
-selected_rows = grid_response["selected_rows"]
+response = AgGrid(df, gridOptions=grid_options, update_mode='SELECTION_CHANGED')
+
+selected_rows = response["selected_rows"]
+
+if not selected_rows.empty:
+    selected_row = selected_rows.iloc[0].to_dict()
+    st.write("Selected Row:", selected_row)
+
 
 if selected_rows is not None and len(selected_rows) > 0:
     selected_row = selected_rows[0]
