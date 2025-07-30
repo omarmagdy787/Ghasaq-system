@@ -1,34 +1,38 @@
 import streamlit as st
-from streamlit import st_autorefresh
+from streamlit_autorefresh import st_autorefresh
 from supabase import create_client
 import pandas as pd
 
-# ⏱️ تحديث تلقائي كل 5 ثواني
-st_autorefresh(interval=5000, key="refresh")
-
-# إعداد الاتصال بـ Supabase
-url   = st.secrets["url"]
-key   = st.secrets["key"]
-TABLE = "main_tasks"
+# ---------- إعداد Supabase ----------
+url = st.secrets["url"]
+key = st.secrets["key"]
+TABLE_NAME = "main_tasks"
 supabase = create_client(url, key)
 
-st.title("Outsourcing Dashboard")
+# ---------- تحديث تلقائي كل دقيقة ----------
+st_autorefresh(interval=60 * 1000, key="refresh")
 
-# جلب كل البيانات من الجدول
-response = supabase.table(TABLE).select("*").execute()
-df       = pd.DataFrame(response.data)
+# ---------- العنوان ----------
+st.markdown("<h2 style='text-align: center;'>Outsourcing Tasks</h2>", unsafe_allow_html=True)
 
-# تأكد وجود عمود category ثم فرّغ فقط outsourcing
-if "category" in df.columns:
-    outsourcing_df = df[df["category"] == "outsourcing"]
-    
-    # الأعمدة التي نريد عرضها
+# ---------- جلب البيانات من Supabase ----------
+response = supabase.table(TABLE_NAME).select("*").execute()
+data = response.data
+
+# ---------- تحويل إلى DataFrame ----------
+df = pd.DataFrame(data)
+
+# ---------- فلترة فقط المهام التي فيها category = outsourcing ----------
+if not df.empty and "category" in df.columns:
+    df_outsourcing = df[df["category"] == "outsourcing"]
+
+    # تحديد الأعمدة المطلوبة فقط
     required_columns = ["task number", "task name", "description", "from", "to", "check"]
-    missing = [c for c in required_columns if c not in outsourcing_df.columns]
-    
-    if missing:
-        st.error(f"❌ الأعمدة التالية غير موجودة في البيانات: {missing}")
-    else:
-        st.dataframe(outsourcing_df[required_columns], use_container_width=True)
+    available_columns = [col for col in required_columns if col in df_outsourcing.columns]
+    df_outsourcing = df_outsourcing[available_columns]
+
+    # عرض الجدول
+    st.dataframe(df_outsourcing, use_container_width=True)
 else:
-    st.error("❌ البيانات لا تحتوي على عمود 'category'")
+    st.warning("لا توجد بيانات أو العمود 'category' غير موجود.")
+
