@@ -21,7 +21,7 @@ data = response.data
 df = pd.DataFrame(data)
 
 # فلترة على حسب الحالة (مثلاً outsourcing)
-outsourcing_df = df[df["status"] == "outsourcing"]
+outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض الجدول
 st.dataframe(outsourcing_df)
