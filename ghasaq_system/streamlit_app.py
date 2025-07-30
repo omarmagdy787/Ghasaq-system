@@ -49,8 +49,6 @@ if len(selected_rows) > 0:
     selected_row = selected_rows[0]  # ده dict
     # تقدر تكمل باستخدام selected_row زي:
     st.write("الصف المختار:", selected_row)
-else:
-    st.info("🔍 لم يتم اختيار صف بعد.")
     with st.expander("📋 تفاصيل فرعية (تظهر عند اختيار صف)"):
         st.write(f"**📦 الكمية:** {selected_row.get('quantity', '—')}")
         st.write(f"**🏷️ الفئة:** {selected_row.get('category', '—')}")
