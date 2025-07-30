@@ -18,27 +18,30 @@ if not url or not key:
 
 supabase: Client = create_client(url, key)
 
+st.set_page_config(page_title="Outsourcing Dashboard", layout="wide")
 st.title("Outsourcing Dashboard")
 
-# تحميل البيانات من Supabase
+# ⏱️ تفعيل إعادة التحديث كل 60 ثانية
+count = st.experimental_get_query_params().get("count", [0])[0]
+if int(count) < 9999:  # تحديد عدد مرات التحديث لو حبيت
+    st.experimental_set_query_params(count=int(count) + 1)
+    time.sleep(60)  # مدة الانتظار قبل التحديث
+    st.experimental_rerun()
+
+# تحميل البيانات من Supabase وتخزينها مؤقتًا
+@st.cache_data(ttl=60)  # تعمل كاش للبيانات لمدة 60 ثانية فقط
 def load_data():
     response = supabase.table(TABLE_NAME).select("*").execute()
     df = pd.DataFrame(response.data)
     return df
 
-# تحديث تلقائي كل 10 ثواني
-countdown = 10  # بالثواني
-st.write(f"🔄 سيتم تحديث البيانات خلال: {countdown} ثانية")
-time.sleep(countdown)
-st.experimental_rerun()  # إعادة تحميل الصفحة تلقائيًا
-
-# تحميل البيانات
 df = load_data()
 
-# فلترة البيانات لعرض فقط اللي category = outsourcing
+# فلترة البيانات: نعرض فقط اللي category = outsourcing
 outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض البيانات
 st.dataframe(outsourcing_df, use_container_width=True)
+
 
 
