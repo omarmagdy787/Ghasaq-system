@@ -10,8 +10,6 @@ TABLE_NAME = "main_tasks"
 supabase = create_client(url, key)
 
 st.markdown("### 📊 Current Tasks")
-df_cleaned = df.applymap(lambda x: str(x).replace("\n", " ") if pd.notnull(x) else x)
-st.dataframe(df_cleaned, use_container_width=True)
 
 try:
     # جلب البيانات من Supabase
@@ -20,31 +18,33 @@ try:
 
     df = pd.DataFrame(data)
     if not df.empty:
+        # تنظيف البيانات من أي أسطر جديدة
+        df_cleaned = df.applymap(lambda x: str(x).replace("\n", " ") if pd.notnull(x) else x)
+
         # إعداد خيارات الجدول
-        gb = GridOptionsBuilder.from_dataframe(df)
+        gb = GridOptionsBuilder.from_dataframe(df_cleaned)
         gb.configure_default_column(
             resizable=True,
-            wrapText=True,         # 🔁 يلف النص داخل الخلية
-            autoHeight=True,       # ⬆️ يجعل ارتفاع الصف يناسب المحتوى
+            wrapText=True,
+            autoHeight=True,
             editable=False,
         )
-        gb.configure_grid_options(domLayout='normal')  # 🧱 يعرض الجدول بكامل الطول الطبيعي
+        gb.configure_grid_options(domLayout='normal')
 
         grid_options = gb.build()
 
         AgGrid(
-            df,
+            df_cleaned,
             gridOptions=grid_options,
-            height=700,  # 📏 ارتفاع الجدول بالكامل
-            fit_columns_on_grid_load=True,  # 🪄 يناسب الأعمدة تلقائيًا
-            use_container_width=True,       # ↔️ يعرض الجدول بعرض الشاشة
-            theme="material",               # 🎨 شكل أنيق
+            height=700,
+            fit_columns_on_grid_load=True,
+            use_container_width=True,
+            theme="material",
         )
     else:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
-
 
 
 
