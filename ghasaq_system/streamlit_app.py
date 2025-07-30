@@ -27,8 +27,6 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
-
-
         # إعداد الخيارات
         gb = GridOptionsBuilder.from_dataframe(df)
         gb.configure_pagination()
