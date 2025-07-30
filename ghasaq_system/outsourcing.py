@@ -3,6 +3,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import time
 
 # تحميل متغيرات البيئة
 load_dotenv()
@@ -19,22 +20,25 @@ supabase: Client = create_client(url, key)
 
 st.title("Outsourcing Dashboard")
 
-# زر لتحديث البيانات
-if st.button("🔄 تحديث البيانات"):
-    st.cache_data.clear()
-
-# تحميل البيانات من Supabase وتخزينها مؤقتًا
-@st.cache_data
+# تحميل البيانات من Supabase
 def load_data():
     response = supabase.table(TABLE_NAME).select("*").execute()
     df = pd.DataFrame(response.data)
     return df
 
+# تحديث تلقائي كل 10 ثواني
+countdown = 10  # بالثواني
+st.write(f"🔄 سيتم تحديث البيانات خلال: {countdown} ثانية")
+time.sleep(countdown)
+st.experimental_rerun()  # إعادة تحميل الصفحة تلقائيًا
+
+# تحميل البيانات
 df = load_data()
 
-# فلترة البيانات: نعرض فقط اللي category = outsourcing
+# فلترة البيانات لعرض فقط اللي category = outsourcing
 outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض البيانات
 st.dataframe(outsourcing_df, use_container_width=True)
+
 
