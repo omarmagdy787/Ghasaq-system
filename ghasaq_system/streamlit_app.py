@@ -33,6 +33,29 @@ selected_task = task_options[selected_label] if selected_label else {}
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
 col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
+with col_add:
+    if st.button("💾 إضافة المهمة"):
+        try:
+            supabase.table(TABLE_NAME).insert({
+                "project_name": project_name,
+                "number": number,
+                "task_name": task_name,
+                "quantity": quantity,
+                "category": category,
+                "assigned_to": assigned_to,
+                "from": from_text,
+                "to": to_text,
+                "tasks_depends": tasks_depends,
+                "tasks_block": tasks_block,
+                "end_date": end_date.isoformat(),
+                "plan_b": plan_b,
+                "check": check,
+                "team_id": team_id,
+                "description": description
+            }).execute()
+            st.success("✅ تم حفظ المهمة بنجاح")
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء الحفظ: {e}")
 
 with col_delete:
     if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
@@ -74,31 +97,6 @@ with col_update:
             st.success("✅ تم تحديث المهمة بنجاح")
         except Exception as e:
             st.error(f"❌ خطأ أثناء التحديث: {e}")
-
-with col_add:
-    if st.button("💾 إضافة المهمة"):
-        try:
-            supabase.table(TABLE_NAME).insert({
-                "project_name": project_name,
-                "number": number,
-                "task_name": task_name,
-                "quantity": quantity,
-                "category": category,
-                "assigned_to": assigned_to,
-                "from": from_text,
-                "to": to_text,
-                "tasks_depends": tasks_depends,
-                "tasks_block": tasks_block,
-                "end_date": end_date.isoformat(),
-                "plan_b": plan_b,
-                "check": check,
-                "team_id": team_id,
-                "description": description
-            }).execute()
-            st.success("✅ تم حفظ المهمة بنجاح")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحفظ: {e}")
-
 with col_clear:
     if st.button("🧹 تفريغ الحقول"):
         for key in [
