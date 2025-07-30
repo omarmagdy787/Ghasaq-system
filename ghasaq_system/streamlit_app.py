@@ -18,16 +18,25 @@ try:
 
     df = pd.DataFrame(data)
     if not df.empty:
+        # إعداد خيارات الجدول
         gb = GridOptionsBuilder.from_dataframe(df)
-        gb.configure_default_column(resizable=True, filter=True, sortable=True)
+        gb.configure_default_column(
+            resizable=True,
+            wrapText=True,         # 🔁 يلف النص داخل الخلية
+            autoHeight=True,       # ⬆️ يجعل ارتفاع الصف يناسب المحتوى
+            editable=False,
+        )
+        gb.configure_grid_options(domLayout='normal')  # 🧱 يعرض الجدول بكامل الطول الطبيعي
+
         grid_options = gb.build()
 
         AgGrid(
             df,
             gridOptions=grid_options,
-            fit_columns_on_grid_load=True,
-            height=600,  # خلي الارتفاع كبير حسب الحاجة
-            use_container_width=True,
+            height=700,  # 📏 ارتفاع الجدول بالكامل
+            fit_columns_on_grid_load=True,  # 🪄 يناسب الأعمدة تلقائيًا
+            use_container_width=True,       # ↔️ يعرض الجدول بعرض الشاشة
+            theme="material",               # 🎨 شكل أنيق
         )
     else:
         st.info("لا توجد بيانات حالياً.")
