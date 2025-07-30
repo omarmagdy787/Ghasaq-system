@@ -4,72 +4,78 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 
-# تحميل متغيرات البيئة
+# ✅ تحميل متغيرات البيئة
 load_dotenv()
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
+
+# ✅ إنشاء عميل Supabase
 supabase: Client = create_client(url, key)
 
-# العناوين المستخدمة في الإدخال
-columns = [
+# ✅ الأعمدة المستخدمة
+COLUMNS = [
     "project_name", "number", "task_name", "quantity", "category",
     "assigned_to", "from", "to", "tasks_depends", "tasks_block",
     "end_date", "plan_b", "check", "team_id", "description"
 ]
 
-st.title("🧠 Task Management System")
+# ✅ إدخال البيانات
+st.title("📋 Dusk System - Task Manager")
 
-# تخزين حالة الإدخال (جديد أو تعديل)
-if "selected_row" not in st.session_state:
-    st.session_state.selected_row = None
+with st.form("add_task_form"):
+    inputs = {}
+    for col in COLUMNS:
+        if col in ["description", "tasks_depends", "tasks_block"]:
+            inputs[col] = st.text_area(col.replace("_", " ").capitalize())
+        elif col in ["end_date"]:
+            inputs[col] = st.date_input("End Date")
+        elif col in ["quantity", "number", "team_id"]:
+            inputs[col] = st.number_input(col.replace("_", " ").capitalize(), step=1)
+        else:
+            inputs[col] = st.text_input(col.replace("_", " ").capitalize())
 
-# ====== الخانات ============
-st.markdown("### ✍️ Task Input")
-inputs = {}
-cols = st.columns(3)
-for i, column in enumerate(columns):
-    with cols[i % 3]:
-        inputs[column] = st.text_input(column.replace("_", " ").title(), value="", key=f"{column}_input")
+    submitted = st.form_submit_button("➕ Add Task")
+    if submitted:
+        try:
+            supabase.table(TABLE_NAME).insert([inputs]).execute()
+            st.success("✅ Task added successfully!")
+        except Exception as e:
+            st.error(f"❌ Error: {e}")
 
-# ====== الزرار ============
-col1, col2 = st.columns([1, 6])
-with col1:
-    if st.session_state.selected_row is None:
-        if st.button("➕ Add Task"):
-            # إضافة مهمة جديدة
-            task_data = {col: inputs[col] for col in columns}
-            supabase.table(TABLE_NAME).insert(task_data).execute()
-            st.success("✅ Task added successfully.")
+# ✅ عرض البيانات
+st.markdown("### 📊 Current Tasks")
+try:
+    response = supabase.table(TABLE_NAME).select("*").execute()
+    data = response.data
+    if data:
+        df = pd.DataFrame(data)
+        st.dataframe(df, use_container_width=True)
+
+        selected_index = st.number_input("اختر رقم الصف للتعديل", min_value=0, max_value=len(df)-1, step=1)
+        selected_row = df.iloc[selected_index]
+
+        st.markdown("### ✏️ Edit Task")
+        edited = {}
+        for col in COLUMNS:
+            default = selected_row.get(col, "")
+            if col in ["description", "tasks_depends", "tasks_block"]:
+                edited[col] = st.text_area(f"{col}", value=default, key=f"{col}_edit")
+            elif col in ["end_date"]:
+                edited[col] = st.date_input(f"{col}", value=pd.to_datetime(default), key=f"{col}_edit")
+            elif col in ["quantity", "number", "team_id"]:
+                edited[col] = st.number_input(f"{col}", value=int(default) if default else 0, key=f"{col}_edit")
+            else:
+                edited[col] = st.text_input(f"{col}", value=default, key=f"{col}_edit")
+
+        if st.button("💾 Save Changes"):
+            try:
+                task_id = selected_row["id"]
+                supabase.table(TABLE_NAME).update(edited).eq("id", task_id).execute()
+                st.success("✅ Task updated successfully!")
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
     else:
-        if st.button("📝 Update Task"):
-            # تعديل مهمة
-            task_data = {col: inputs[col] for col in columns}
-            task_id = st.session_state.selected_row["id"]
-            supabase.table(TABLE_NAME).update(task_data).eq("id", task_id).execute()
-            st.success("✅ Task updated successfully.")
-            st.session_state.selected_row = None
-
-# ====== عرض الجدول ============
-st.markdown("### 📋 Tasks Table")
-response = supabase.table(TABLE_NAME).select("*").execute()
-data = response.data
-
-if data:
-    df = pd.DataFrame(data)
-    st.dataframe(df, use_container_width=True)
-
-    # اختيار صف
-    selected_index = st.selectbox("اختر رقم الصف للتعديل", options=range(len(df)), format_func=lambda i: f"{i + 1} - {df.iloc[i]['task_name']}")
-    selected_row = df.iloc[selected_index]
-    
-    if st.button("✏️ Edit Selected Row"):
-        st.session_state.selected_row = selected_row
-
-        # تعبئة الخانات بالقيم
-        for col in columns:
-            st.session_state[f"{col}_input"] = str(selected_row.get(col, ""))
-
-else:
-    st.info("لا توجد مهام حالياً.")
-
+        st.info("لا توجد بيانات حالياً.")
+except Exception as e:
+    st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
