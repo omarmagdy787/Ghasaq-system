@@ -1,28 +1,41 @@
-import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder
+import streamlit as st
 import pandas as pd
 
-# بيانات تجريبية — استبدلها ببيانات Supabase
-data = [
-    {"task number": 1, "task name": "Install", "description": "Install window", "from": "Ahmed", "to": "Ali", "check": "No"},
-    {"task number": 2, "task name": "Paint", "description": "Paint door", "from": "Ali", "to": "Omar", "check": "Yes"},
-]
-df = pd.DataFrame(data)
+# بيانات تجريبية
+df = pd.DataFrame({
+    "task number": [1, 2, 3],
+    "task name": ["Install", "Paint", "Test"],
+    "description": ["Install door", "Paint frame", "Test sliding"],
+    "from": ["Ali", "Ahmed", "Sara"],
+    "to": ["Omar", "Laila", "Tamer"],
+    "check": ["No", "Yes", "No"]
+})
 
-# إعداد شكل الجدول
+# بناء إعدادات الجدول
 gb = GridOptionsBuilder.from_dataframe(df)
-gb.configure_default_column(
-    wrapText=True,
-    autoHeight=True,
-    resizable=True
+
+# نخلي الأعمدة تاخد حجمها تلقائي
+gb.configure_default_column(resizable=True, autoHeight=True, wrapText=True)
+gb.configure_grid_options(domLayout='autoHeight')  # يخلي الجدول يزبط ارتفاعه حسب المحتوى
+
+# نفعّل التحجيم التلقائي للأعمدة
+gb.configure_grid_options(suppressHorizontalScroll=False)  # نخلي فيه Scroll لو الأعمدة كتير
+
+# إعداد الـ AgGrid
+grid_options = gb.build()
+
+# عرض الجدول
+AgGrid(
+    df,
+    gridOptions=grid_options,
+    fit_columns_on_grid_load=True,  # الأعمدة تتظبط أول ما الجدول يظهر
+    height=400,                     # ممكن تغيره لو الجدول كبير
+    enable_enterprise_modules=False,
+    theme="balham",                 # theme حلو وخفيف
+    update_mode="MODEL_CHANGED",
+    reload_data=True
 )
-gb.configure_grid_options(
-    domLayout='autoHeight',
-    suppressHorizontalScroll=True
-)
-gb.configure_column("check", cellEditor='agSelectCellEditor', cellEditorParams={"values": ["Yes", "No"]}, editable=True)
-gb.configure_selection(selection_mode="single", use_checkbox=True)
-gridOptions = gb.build()
 
 # عرض الجدول
 st.markdown("## 📋 جدول المهام")
