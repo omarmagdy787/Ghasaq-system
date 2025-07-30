@@ -20,7 +20,7 @@ def load_data():
 df = load_data()
 
 # الأعمدة
-main_columns = ["project_name", "task_name", "assigned_to", "from", "to", "end_date", "check"]
+main_columns = ["id","project_name", "task_name", "assigned_to", "from", "to", "end_date", "check"]
 sub_columns = ["quantity", "category", "description", "tasks_depends", "tasks_block", "plan_b"]
 
 # بناء خيارات AgGrid
@@ -56,32 +56,7 @@ if selected_rows:
         st.write(f"**🛠️ خطة بديلة:** {row.get('plan_b', '—')}")
 else:
     st.info("👈 اختر صفًا من الجدول عن طريق المربع الجانبي لعرض التفاصيل الفرعية.")
-    import streamlit as st
-from st_aggrid import AgGrid, GridOptionsBuilder
-import pandas as pd
-
-# بيانات تجريبية
-df = pd.DataFrame({
-    "id": [1, 2, 3],
-    "task": ["Clean", "Code", "Cook"],
-    "status": ["Done", "Pending", "In Progress"]
-})
-
-# إعداد الجدول
-gb = GridOptionsBuilder.from_dataframe(df)
-gb.configure_selection(selection_mode="single", use_checkbox=True)
-grid_options = gb.build()
-
-# عرض الجدول
-grid_response = AgGrid(df, gridOptions=grid_options, height=300, width="100%")
-
-# اختيار الصف
-selected = grid_response['selected_rows']
-if selected:
-    st.success(f"انت اخترت: {selected[0]}")
-else:
-    st.info("اختر صفًا")
-
+  
 
 
 
