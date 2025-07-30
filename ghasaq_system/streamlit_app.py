@@ -16,7 +16,7 @@ try:
     data = response.data
     if data:
         df = pd.DataFrame(data)
-        st.dataframe(df, width=300, height=400)  # جدول بحجم ثابت
+        st.dataframe(df, width=1000, height=400)  # جدول بحجم ثابت
     else:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
