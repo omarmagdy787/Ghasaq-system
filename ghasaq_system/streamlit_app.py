@@ -43,10 +43,10 @@ grid_response = AgGrid(
     theme="streamlit"
 )
 
-# استخراج الصف المحدد
-selected_rows = grid_response.get("selected_rows", [])
-if selected_rows:
-    row = selected_rows[0]
+selected_rows = response["selected_rows"]
+
+if selected_rows is not None and len(selected_rows) > 0:
+    selected_row = selected_rows[0]
     with st.expander("📋 تفاصيل فرعية (تظهر عند اختيار صف)"):
         st.write(f"**📦 الكمية:** {row.get('quantity', '—')}")
         st.write(f"**🏷️ الفئة:** {row.get('category', '—')}")
