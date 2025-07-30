@@ -1,44 +1,31 @@
 import streamlit as st
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import os
+from supabase import create_client
 import pandas as pd
-import time
+from streamlit_autorefresh import st_autorefresh
 
-# تحميل متغيرات البيئة
-load_dotenv()
+# عمل تحديث تلقائي كل 5 ثواني
+st_autorefresh(interval=5000, key="refresh")
 
+# إعداد الاتصال بـ Supabase
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
 
-if not url or not key:
-    st.error("❌ تأكد من وجود url و key في ملف .env")
-    st.stop()
+supabase = create_client(url, key)
 
-supabase: Client = create_client(url, key)
+# تحميل البيانات
+response = supabase.table(TABLE_NAME).select("*").execute()
+data = response.data
 
-st.set_page_config(page_title="Outsourcing Dashboard", layout="wide")
-st.title("Outsourcing Dashboard")
+# تحويل البيانات إلى DataFrame
+df = pd.DataFrame(data)
 
-# ⏱️ تفعيل إعادة التحديث كل 60 ثانية
-count = st.experimental_get_query_params().get("count", [0])[0]
-if int(count) < 9999:  # تحديد عدد مرات التحديث لو حبيت
-    st.experimental_set_query_params(count=int(count) + 1)
-    time.sleep(60)  # مدة الانتظار قبل التحديث
-    st.experimental_rerun()
+# فلترة على حسب الحالة (مثلاً outsourcing)
+outsourcing_df = df[df["status"] == "outsourcing"]
 
-# تحميل البيانات من Supabase وتخزينها مؤقتًا
-@st.cache_data(ttl=60)  # تعمل كاش للبيانات لمدة 60 ثانية فقط
-def load_data():
-    response = supabase.table(TABLE_NAME).select("*").execute()
-    df = pd.DataFrame(response.data)
-    return df
+# عرض الجدول
+st.dataframe(outsourcing_df)
 
-df = load_data()
-
-# فلترة البيانات: نعرض فقط اللي category = outsourcing
-outsourcing_df = df[df["category"] == "outsourcing"]
 
 # عرض البيانات
 st.dataframe(outsourcing_df, use_container_width=True)
