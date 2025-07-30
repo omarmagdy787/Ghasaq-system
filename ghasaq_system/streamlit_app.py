@@ -20,28 +20,33 @@ def load_data():
 df = load_data()
 
 # الأعمدة
-main_columns = ["id","project_name", "task_name", "assigned_to", "from", "to", "end_date", "check"]
+main_columns = ["id", "project_name", "task_name", "assigned_to", "from", "to", "end_date", "check"]
 sub_columns = ["quantity", "category", "description", "tasks_depends", "tasks_block", "plan_b"]
 
 # بناء خيارات AgGrid
 gb = GridOptionsBuilder.from_dataframe(df)
-gb.configure_selection(selection_mode="single", use_checkbox=True)  # ✅ تفعيل الاختيار
+gb.configure_selection(selection_mode="single", use_checkbox=True)
 for col in df.columns:
     gb.configure_column(col, hide=(col not in main_columns))
 grid_options = gb.build()
 
+# عرض الجدول
+st.subheader("🧾 المهام الرئيسية")
+response = AgGrid(
+    df,
+    gridOptions=grid_options,
+    update_mode=GridUpdateMode.SELECTION_CHANGED,
+    fit_columns_on_grid_load=True,
+    height=350,
+    width="100%",
+    theme="streamlit"
+)
 
-response = AgGrid(df, gridOptions=grid_options, update_mode='SELECTION_CHANGED')
-
+# استخراج الصف المختار
 selected_rows = response["selected_rows"]
 
-if not selected_rows.empty:
-    selected_row = selected_rows.iloc[0].to_dict()
-    st.write("Selected Row:", selected_row)
-
-
-if selected_rows is not None and len(selected_rows) > 0:
-    selected_row = selected_rows[0]
+if selected_rows:
+    selected_row = selected_rows[0]  # ده dict
     with st.expander("📋 تفاصيل فرعية (تظهر عند اختيار صف)"):
         st.write(f"**📦 الكمية:** {selected_row.get('quantity', '—')}")
         st.write(f"**🏷️ الفئة:** {selected_row.get('category', '—')}")
@@ -51,6 +56,7 @@ if selected_rows is not None and len(selected_rows) > 0:
         st.write(f"**🛠️ خطة بديلة:** {selected_row.get('plan_b', '—')}")
 else:
     st.info("👈 اختر صفًا من الجدول عن طريق المربع الجانبي لعرض التفاصيل الفرعية.")
+
 
 
 
