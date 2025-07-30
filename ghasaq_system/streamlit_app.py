@@ -118,7 +118,7 @@ try:
         df = pd.DataFrame(data)
         st.dataframe(df, use_container_width=True)
     else:
-        st.info("لا توجد بيانات حالياً.")
+    st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
         st.dataframe(df, use_container_width=True)
