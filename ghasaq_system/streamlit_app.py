@@ -28,27 +28,28 @@ sub_columns = ["quantity", "category", "description", "tasks_depends", "tasks_bl
 gb = GridOptionsBuilder.from_dataframe(df)
 # إظهار فقط الأعمدة الأساسية
 for col in df.columns:
-    if col in main_columns:
-        gb.configure_column(col, hide=False)
-    else:
-        gb.configure_column(col, hide=True)
+    gb.configure_column(col, hide=(col not in main_columns))
 
+# تمكين الاختيار والصفحات
 gb.configure_selection(selection_mode="single", use_checkbox=True)
+gb.configure_pagination(paginationAutoPageSize=True)
 grid_options = gb.build()
 
 # عرض AgGrid
 st.subheader("🧾 المهام الرئيسية")
 grid_response = AgGrid(
-    df,  # مرّر كل الأعمدة
+    df,
     gridOptions=grid_options,
-    height=300,
+    height=400,
     width="100%",
     update_mode=GridUpdateMode.SELECTION_CHANGED,
     fit_columns_on_grid_load=True,
-    theme="streamlit"
+    theme="streamlit",
+    allow_unsafe_jscode=True,
+    reload_data=True
 )
 
-# اختيار صف
+# عرض التفاصيل
 selected_row = pd.DataFrame(grid_response["selected_rows"])
 
 if not selected_row.empty:
@@ -62,6 +63,7 @@ if not selected_row.empty:
         st.write(f"**🛠️ خطة بديلة:** {row.get('plan_b', '—')}")
 else:
     st.info("👈 اختر صفًا من الجدول لعرض التفاصيل الفرعية.")
+
 
 
 
