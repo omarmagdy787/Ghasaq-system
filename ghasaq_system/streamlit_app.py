@@ -53,7 +53,7 @@ with col3:
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
     plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
-    team_id = "None"
+    team_id = st.text_input("Team ID", value=selected_task.get("team_id", ""))
     description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
