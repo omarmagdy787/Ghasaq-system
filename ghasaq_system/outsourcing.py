@@ -32,7 +32,7 @@ if "status" in df.columns:
     # عرض الجدول
     st.dataframe(filtered_df, use_container_width=True)
 else:
-    st.warning("⚠️ جدول البيانات لا يحتوي على عمود 'status'")
+    st.warning("⚠️ جدول البيانات لا يحتوي على عمود 'category'")
 
 # فلترة على حسب الحالة (مثلاً outsourcing)
 outsourcing_df = df[df["category"] == "outsourcing"]
