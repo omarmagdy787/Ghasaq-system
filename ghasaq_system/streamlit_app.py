@@ -101,7 +101,8 @@ with col_update:
                 "end_date": end_date.isoformat(),
                 "plan_b": plan_b,
                 "check": check,
-                "team_id": team_id,
+                if len(team_id) == 36 and "-" in team_id:
+                 data_to_insert["team_id"] = team_id
                 "description": description
             }).eq("id", selected_task["id"]).execute()
             st.success("✅ تم تحديث المهمة بنجاح")
