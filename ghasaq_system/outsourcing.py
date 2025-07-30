@@ -1,16 +1,14 @@
 import streamlit as st
-from supabase import create_client, Client
-from dotenv import load_dotenv
+from supabase import create_client
 import os
-import pandas as pd
 
-# تحميل متغيرات البيئة
-load_dotenv()
-
+# الاتصال بـ Supabase
 url = st.secrets["url"]
 key = st.secrets["key"]
+supabase = create_client(url, key)
 
-TABLE_NAME = "main_tasks"  # نقرأ من جدول المهام الأساسي
+TABLE_NAME = "main_tasks"  # أو أي اسم الجدول الصحيح
+
 
 st.title("Outsourcing Dashboard")
 
