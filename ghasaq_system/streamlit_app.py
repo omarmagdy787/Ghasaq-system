@@ -17,7 +17,7 @@ try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
 
-    if data:
+    if not df.empty:
         df = pd.DataFrame(data)
 
         # إعداد الخيارات
