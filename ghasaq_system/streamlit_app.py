@@ -39,9 +39,7 @@ grid_response = AgGrid(
     fit_columns_on_grid_load=True,
     theme="streamlit"
 )
-
-if not selected_row.empty:
-
+if not selected_row.empty:grid_response["selected_rows"]
 # لو تم اختيار صف، نعرض التفاصيل
 if selected_row:
     st.markdown("---")
