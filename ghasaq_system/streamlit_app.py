@@ -19,96 +19,18 @@ supabase: Client = create_client(url, key)
 
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
+
 # ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
 edit_response = supabase.table(TABLE_NAME).select("*").execute()
 edit_data = edit_response.data
-
 task_options = {f"{item['id']} - {item['task_name']}": item for item in edit_data} if edit_data else {}
 
-# ================= اختيار ID =================
+# ================= اختيار المهمة =================
 st.markdown("### ✏ تعديل مهمة موجودة")
 selected_label = st.selectbox("اختر المهمة للتعديل", [""] + list(task_options.keys()), key="selected_label")
 selected_task = task_options[selected_label] if selected_label else {}
 
-# ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
-st.markdown("---")
-col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
-with col_add:
-    if st.button("💾 إضافة المهمة"):
-        try:
-            supabase.table(TABLE_NAME).insert({
-                "project_name": project_name,
-                "number": number,
-                "task_name": task_name,
-                "quantity": quantity,
-                "category": category,
-                "assigned_to": assigned_to,
-                "from": from_text,
-                "to": to_text,
-                "tasks_depends": tasks_depends,
-                "tasks_block": tasks_block,
-                "end_date": end_date.isoformat(),
-                "plan_b": plan_b,
-                "check": check,
-                "team_id": team_id,
-                "description": description
-            }).execute()
-            st.success("✅ تم حفظ المهمة بنجاح")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحفظ: {e}")
-
-with col_delete:
-    if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
-        try:
-            task_id = task_options[st.session_state.selected_label]["id"]
-            supabase.table(TABLE_NAME).delete().eq("id", task_id).execute()
-            st.success("✅ تم حذف المهمة بنجاح")
-            for key in [
-                "project_name", "number", "task_name", "quantity", "category",
-                "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
-                "end_date", "plan_b", "check", "team_id", "description", "selected_label"
-            ]:
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء الحذف: {e}")
-
-with col_update:
-    if st.button("🔄 تحديث المهمة") and selected_task:
-        try:
-            supabase.table(TABLE_NAME).update({
-                "project_name": project_name,
-                "number": number,
-                "task_name": task_name,
-                "quantity": quantity,
-                "category": category,
-                "assigned_to": assigned_to,
-                "from": from_text,
-                "to": to_text,
-                "tasks_depends": tasks_depends,
-                "tasks_block": tasks_block,
-                "end_date": end_date.isoformat(),
-                "plan_b": plan_b,
-                "check": check,
-                "team_id": team_id,
-                "description": description
-            }).eq("id", selected_task["id"]).execute()
-            st.success("✅ تم تحديث المهمة بنجاح")
-        except Exception as e:
-            st.error(f"❌ خطأ أثناء التحديث: {e}")
-with col_clear:
-    if st.button("🧹 تفريغ الحقول"):
-        for key in [
-            "project_name", "number", "task_name", "quantity", "category",
-            "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
-            "end_date", "plan_b", "check", "team_id", "description", "selected_label"
-        ]:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.rerun()
-
-# ========== إنشاء الأعمدة للخانات ==========
+# ========== الحقول ==========
 col1, col2, col3 = st.columns([0.5, 0.5, 1])
 
 with col1:
@@ -134,9 +56,88 @@ with col3:
     team_id = st.text_input("Team ID", value=selected_task.get("team_id", ""), key="team_id")
     description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
 
+# ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
+st.markdown("---")
+col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
+
+with col_add:
+    if st.button("💾 إضافة المهمة"):
+        try:
+            supabase.table(TABLE_NAME).insert({
+                "project_name": project_name,
+                "number": number,
+                "task_name": task_name,
+                "quantity": quantity,
+                "category": category,
+                "assigned_to": assigned_to,
+                "from": from_text,
+                "to": to_text,
+                "tasks_depends": tasks_depends,
+                "tasks_block": tasks_block,
+                "end_date": end_date.isoformat(),
+                "plan_b": plan_b,
+                "check": check,
+                "team_id": team_id,
+                "description": description
+            }).execute()
+            st.success("✅ تم حفظ المهمة بنجاح")
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء الحفظ: {e}")
+
+with col_update:
+    if st.button("🔄 تحديث المهمة") and selected_task:
+        try:
+            supabase.table(TABLE_NAME).update({
+                "project_name": project_name,
+                "number": number,
+                "task_name": task_name,
+                "quantity": quantity,
+                "category": category,
+                "assigned_to": assigned_to,
+                "from": from_text,
+                "to": to_text,
+                "tasks_depends": tasks_depends,
+                "tasks_block": tasks_block,
+                "end_date": end_date.isoformat(),
+                "plan_b": plan_b,
+                "check": check,
+                "team_id": team_id,
+                "description": description
+            }).eq("id", selected_task["id"]).execute()
+            st.success("✅ تم تحديث المهمة بنجاح")
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء التحديث: {e}")
+
+with col_delete:
+    if st.button("🗑️ حذف المهمة") and st.session_state.get("selected_label", ""):
+        try:
+            task_id = task_options[st.session_state.selected_label]["id"]
+            supabase.table(TABLE_NAME).delete().eq("id", task_id).execute()
+            st.success("✅ تم حذف المهمة بنجاح")
+            for key in [
+                "project_name", "number", "task_name", "quantity", "category",
+                "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
+                "end_date", "plan_b", "check", "team_id", "description", "selected_label"
+            ]:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ خطأ أثناء الحذف: {e}")
+
+with col_clear:
+    if st.button("🧹 تفريغ الحقول"):
+        for key in [
+            "project_name", "number", "task_name", "quantity", "category",
+            "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
+            "end_date", "plan_b", "check", "team_id", "description", "selected_label"
+        ]:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.rerun()
+
 # ========== عرض الجدول ==========
 st.markdown("### 📊 Current Tasks")
-
 try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
