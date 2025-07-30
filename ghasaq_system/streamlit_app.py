@@ -39,17 +39,17 @@ grid_response = AgGrid(
     fit_columns_on_grid_load=True,
     theme="streamlit"
 )
-if not selected_row.empty:grid_response["selected_rows"]
-# لو تم اختيار صف، نعرض التفاصيل
-if selected_row:
-    st.markdown("---")
-    st.subheader("📌 التفاصيل")
-    row_data = selected_row[0]
-    full_row = df[df["number"] == row_data["number"]].iloc[0]
+selected_row = pd.DataFrame(grid_response["selected_rows"])
 
-    for col in sub_columns:
-        st.write(f"**{col}**: {full_row[col]}")
-
+if not selected_row.empty:
+    st.subheader("📌 تفاصيل الطلب")
+    st.write(f"**اسم العميل:** {selected_row.iloc[0]['client_name']}")
+    st.write(f"**رقم الهاتف:** {selected_row.iloc[0]['phone']}")
+    st.write(f"**المنطقة:** {selected_row.iloc[0]['area']}")
+    st.write(f"**نوع الباب:** {selected_row.iloc[0]['door_type']}")
+    st.write(f"**اللون:** {selected_row.iloc[0]['color']}")
+    st.write(f"**التاريخ:** {selected_row.iloc[0]['date']}")
+    st.write(f"**الملاحظات:** {selected_row.iloc[0]['notes']}")
 
 
 
