@@ -51,7 +51,6 @@ grid_response = AgGrid(
 # اختيار صف
 selected_row = pd.DataFrame(grid_response["selected_rows"])
 
-# التفاصيل الفرعية
 if not selected_row.empty:
     with st.expander("📋 تفاصيل فرعية (تظهر عند الضغط)"):
         row = selected_row.iloc[0]
@@ -61,6 +60,9 @@ if not selected_row.empty:
         st.write(f"**🔗 يعتمد على:** {row.get('tasks_depends', '—')}")
         st.write(f"**⛔ محجوب بسبب:** {row.get('tasks_block', '—')}")
         st.write(f"**🛠️ خطة بديلة:** {row.get('plan_b', '—')}")
+else:
+    st.info("👈 اختر صفًا من الجدول لعرض التفاصيل الفرعية.")
+
 
 
 
