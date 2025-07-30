@@ -11,14 +11,12 @@ supabase = create_client(url, key)
 
 st.markdown("### 📊 Current Tasks")
 
-# ========== عرض الجدول ==========
-st.markdown("### 📊 Current Tasks")
 try:
     response = supabase.table(TABLE_NAME).select("*").execute()
     data = response.data
     if data:
         df = pd.DataFrame(data)
-        st.dataframe(df, width=800, height=400)  # جدول بحجم ثابت
+        st.dataframe(df, width=2000, height=400)  # جدول بحجم ثابت
     else:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
