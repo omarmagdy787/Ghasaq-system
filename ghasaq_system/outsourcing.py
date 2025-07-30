@@ -1,53 +1,52 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 from supabase import create_client
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import pandas as pd
 
-# إعداد الاتصال بـ Supabase
+# ---------- إعداد Supabase ----------
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "main_tasks"
 supabase = create_client(url, key)
 
-# قراءة البيانات
-response = supabase.table(TABLE_NAME).select("*").eq("category", "outsourcing").execute()
+# ---------- تحديث تلقائي كل دقيقة ----------
+st_autorefresh(interval=60 * 1000, key="refresh")
+
+# ---------- العنوان ----------
+st.markdown("<h2 style='text-align: center;'>Outsourcing Tasks</h2>", unsafe_allow_html=True)
+
+# ---------- جلب البيانات من Supabase ----------
+response = supabase.table(TABLE_NAME).select("*").execute()
 data = response.data
 
-if not data:
-    st.warning("لا يوجد بيانات في التصنيف outsourcing.")
+# ---------- تحويل إلى DataFrame ----------
+df = pd.DataFrame(data)
+
+# ---------- فلترة فقط المهام التي فيها category = outsourcing ----------
+if not df.empty and "category" in df.columns:
+    df_outsourcing = df[df["category"] == "outsourcing"]
+
+    # تحديد الأعمدة المطلوبة فقط
+    required_columns = ["id", "number", "task_name", "description", "from", "to", "check"]
+    available_columns = [col for col in required_columns if col in df_outsourcing.columns]
+    df_outsourcing = df_outsourcing[available_columns]
+
+    # عرض الجدول للتعديل
+    for i, row in df_outsourcing.iterrows():
+        st.markdown("---")
+        st.write(f"**Task #{row['number']} - {row['task_name']}**")
+        st.write(f"{row['description']}")
+        check_value = st.selectbox(
+            f"Check for Task #{row['number']}",
+            ["Yes", "No"],
+            index=0 if row["check"] == "Yes" else 1,
+            key=f"check_{row['id']}"
+        )
+        if st.button(f"تحديث Task #{row['number']}", key=f"update_{row['id']}"):
+            supabase.table(TABLE_NAME).update({"check": check_value}).eq("id", row["id"]).execute()
+            st.success(f"✅ تم تحديث المهمة #{row['number']} إلى {check_value}")
 else:
-    df = pd.DataFrame(data)
+    st.warning("لا توجد بيانات أو العمود 'category' غير موجود.")
 
-    # الاحتفاظ بالأعمدة المطلوبة فقط
-    df = df ["number", "task_name", "description", "from", "to", "check"]
-
-    # إعداد جدول AgGrid للتعديل
-    gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_column("check", editable=True, cellEditor='agSelectCellEditor', cellEditorParams={'values': ['yes', 'no']})
-    gb.configure_grid_options(domLayout='normal')
-    grid_options = gb.build()
-
-    grid_response = AgGrid(
-        df,
-        gridOptions=grid_options,
-        update_mode=GridUpdateMode.MANUAL,
-        allow_unsafe_jscode=True,
-        fit_columns_on_grid_load=True,
-        height=400
-    )
-
-    updated_df = grid_response["data"]
-    changed_rows = grid_response["data"]
-    st.markdown("---")
-
-    if st.button("💾 تحديث التعديلات"):
-        for index, row in updated_df.iterrows():
-            task_number = row["task number"]
-            new_check_value = row["check"]
-
-            # تحديث القيمة في Supabase بناءً على task number
-            supabase.table(TABLE_NAME).update({"check": new_check_value}).eq("task number", task_number).execute()
-
-        st.success("✅ تم تحديث التعديلات بنجاح.")
 
 
