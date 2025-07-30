@@ -20,18 +20,26 @@ def load_data():
 
 df = load_data()
 
-# تقسيم الأعمدة إلى أساسية وفرعية
-main_columns = ["project_name", "number", "task_name", "category", "assigned_to", "from", "to", "end_date", "check"]
-sub_columns = ["quantity", "description", "tasks_depends", "tasks_block", "plan_b", "team_id"]
+# الأعمدة
+main_columns = ["project_name", "task_name", "assigned_to", "from", "to", "end_date", "check"]
+sub_columns = ["quantity", "category", "description", "tasks_depends", "tasks_block", "plan_b"]
 
-# عرض الجدول الأساسي
-st.subheader("🧾 المهام الرئيسية")
-gb = GridOptionsBuilder.from_dataframe(df[main_columns])
+# بناء الخيارات
+gb = GridOptionsBuilder.from_dataframe(df)
+# إظهار فقط الأعمدة الأساسية
+for col in df.columns:
+    if col in main_columns:
+        gb.configure_column(col, hide=False)
+    else:
+        gb.configure_column(col, hide=True)
+
 gb.configure_selection(selection_mode="single", use_checkbox=True)
 grid_options = gb.build()
 
+# عرض AgGrid
+st.subheader("🧾 المهام الرئيسية")
 grid_response = AgGrid(
-    df[main_columns],
+    df,  # مرّر كل الأعمدة
     gridOptions=grid_options,
     height=300,
     width="100%",
@@ -39,16 +47,20 @@ grid_response = AgGrid(
     fit_columns_on_grid_load=True,
     theme="streamlit"
 )
+
+# اختيار صف
 selected_row = pd.DataFrame(grid_response["selected_rows"])
 
+# التفاصيل الفرعية
 if not selected_row.empty:
     with st.expander("📋 تفاصيل فرعية (تظهر عند الضغط)"):
-        st.write(f"**📦 الكمية:** {selected_row.iloc[0]['quantity']}")
-        st.write(f"**🏷️ الفئة:** {selected_row.iloc[0]['category']}")
-        st.write(f"**📝 الوصف:** {selected_row.iloc[0]['description']}")
-        st.write(f"**🔗 يعتمد على:** {selected_row.iloc[0]['tasks_depends']}")
-        st.write(f"**⛔ محجوب بسبب:** {selected_row.iloc[0]['tasks_block']}")
-        st.write(f"**🛠️ خطة بديلة:** {selected_row.iloc[0]['plan_b']}")
+        row = selected_row.iloc[0]
+        st.write(f"**📦 الكمية:** {row.get('quantity', '—')}")
+        st.write(f"**🏷️ الفئة:** {row.get('category', '—')}")
+        st.write(f"**📝 الوصف:** {row.get('description', '—')}")
+        st.write(f"**🔗 يعتمد على:** {row.get('tasks_depends', '—')}")
+        st.write(f"**⛔ محجوب بسبب:** {row.get('tasks_block', '—')}")
+        st.write(f"**🛠️ خطة بديلة:** {row.get('plan_b', '—')}")
 
 
 
