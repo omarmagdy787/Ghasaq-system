@@ -3,6 +3,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 import pandas as pd
+from datetime import date
 
 # تحميل متغيرات البيئة
 load_dotenv()
@@ -32,7 +33,7 @@ default_keys = {
     "to_text": "",
     "tasks_depends": "",
     "tasks_block": "",
-    "end_date": pd.Timestamp.today(),
+    "end_date": date.today(),
     "plan_b": "",
     "check": "Yes",
     "team_id_input": "",
@@ -58,31 +59,33 @@ selected_task = task_options[selected_label] if selected_label else {}
 if selected_task:
     for field, value in selected_task.items():
         if field in st.session_state:
-            st.session_state[field] = value
+            if field == "end_date":
+                # تأكد أنه تاريخ
+                st.session_state[field] = pd.to_datetime(value).date() if value else date.today()
+            else:
+                st.session_state[field] = value
 
 # ========== الحقول ==========
-col1, col2, col3,col4,col5  = st.columns([0.5, 0.5, 0.5,0.5,0.5])
+col1, col2, col3, col4, col5 = st.columns([0.5, 0.5, 0.5, 0.5, 0.5])
 
 with col1:
     project_name = st.text_input("Project Name", key="project_name")
     number = st.text_input("Task Number", key="number")
     task_name = st.text_input("Task Name", key="task_name")
-    
+
 with col2:
     quantity = st.text_input("Quantity", key="quantity")
     category = st.text_input("Category", key="category")
     assigned_to = st.text_input("Assigned To", key="assigned_to")
-    
+
 with col3:
     from_text = st.text_input("From", key="from_text")
     to_text = st.text_input("To", key="to_text")
     tasks_depends = st.text_input("Tasks Depends On", key="tasks_depends")
-    
+
 with col4:
     tasks_block = st.text_input("Tasks Blocked By", key="tasks_block")
-    raw_date = st.session_state.get("end_date", pd.Timestamp.today())
-    safe_end_date = pd.to_datetime(raw_date, errors="coerce") if raw_date else pd.Timestamp.today()
-    end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
+    end_date = st.date_input("End Date", key="end_date")
     plan_b = st.text_input("Plan B", key="plan_b")
 
 with col5:
@@ -179,6 +182,7 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+
 
 
 
