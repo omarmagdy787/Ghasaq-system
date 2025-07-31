@@ -95,24 +95,25 @@ with col5:
     team_id_input = st.text_input("Team ID", key="team_id_input")
     team_id = team_id_input if team_id_input.strip() != "" else None
 
+# ========= Task Details Section =========
 st.markdown("### 🧾 Task Details")
 
-# محاولة تحميل البيانات من session_state لو موجودة
-try:
-    description_df = pd.read_json(st.session_state.get("description", "[]"))
-except:
-    description_df = pd.DataFrame(columns=["Column 1", "Column 2", "Column 3", "Column 4"])
+# زر لإضافة صف جديد (داخل الواجهة)
+add_col1, add_col2 = st.columns([1, 5])
+with add_col1:
+    if st.button("➕ صف جديد"):
+        new_row = {"Column 1": "", "Column 2": "", "Column 3": "", "Column 4": ""}
+        description_df = pd.concat([description_df, pd.DataFrame([new_row])], ignore_index=True)
 
-# إعداد خصائص الجدول (editable like Excel)
+# إعداد جدول AgGrid مع إمكانية التعديل والاختيار
 gb = GridOptionsBuilder.from_dataframe(description_df)
 gb.configure_default_column(editable=True)
 gb.configure_grid_options(enableRowGroup=True, enableRangeSelection=True)
-gb.configure_side_bar()
-gb.configure_grid_options(domLayout='normal')  # مهم لتفعيل واجهة كاملة
-
+gb.configure_side_bar()  # يُظهر لوحة تحكم جانبية للفلترة، الترتيب، إلخ
+gb.configure_selection("single")  # لتحديد صف واحد فقط
 grid_options = gb.build()
 
-# عرض الجدول القابل للتعديل
+# عرض الجدول
 grid_response = AgGrid(
     description_df,
     gridOptions=grid_options,
@@ -124,12 +125,19 @@ grid_response = AgGrid(
     height=300
 )
 
-# البيانات المعدّلة
+# تحديث البيانات بعد التعديل
 updated_df = grid_response["data"]
+selected_row = grid_response["selected_rows"]
 
-# حفظ التعديلات في session_state
+# زر لحذف الصف المحدد
+if selected_row:
+    if st.button("🗑 حذف الصف المحدد"):
+        index_to_remove = description_df[description_df.eq(selected_row[0]).all(axis=1)].index
+        updated_df = updated_df.drop(index_to_remove)
+        updated_df.reset_index(drop=True, inplace=True)
+
+# حفظ في session
 st.session_state["description"] = updated_df.to_json(orient="records")
-
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
