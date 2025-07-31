@@ -58,7 +58,7 @@ with col5:
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
     team_id_input = st.text_input("Team ID", value=selected_task.get("team_id", "") or "", key="team_id_input")
     team_id = team_id_input if team_id_input.strip() != "" else None
-    description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
+    description = st.text_area("Description", value=selected_task.get("description", ""), key="description")
     
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
