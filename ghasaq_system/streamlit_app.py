@@ -53,9 +53,8 @@ with col4:
     raw_date = selected_task.get("end_date")
     safe_end_date = pd.to_datetime(raw_date, errors="coerce") if raw_date else pd.Timestamp.today()
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
-    
-with col5:
     plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
+with col5:
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
     team_id_input = st.text_input("Team ID", value=selected_task.get("team_id", "") or "", key="team_id_input")
     team_id = team_id_input if team_id_input.strip() != "" else None
