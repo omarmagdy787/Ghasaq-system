@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 from datetime import date
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+import json
 
 # تحميل متغيرات البيئة
 load_dotenv()
@@ -92,7 +94,34 @@ with col5:
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(st.session_state.get("check", "Yes")), key="check")
     team_id_input = st.text_input("Team ID", key="team_id_input")
     team_id = team_id_input if team_id_input.strip() != "" else None
-    description = st.text_area("Description", key="description")
+
+st.markdown("### 🧾 Task Details")
+
+# محاولة تحميل البيانات من session_state لو موجودة
+try:
+    description_df = pd.read_json(st.session_state.get("description", "[]"))
+except:
+    description_df = pd.DataFrame(columns=["Column 1", "Column 2", "Column 3", "Column 4"])
+
+gb = GridOptionsBuilder.from_dataframe(description_df)
+gb.configure_default_column(editable=True)
+gb.configure_grid_options(enableRangeSelection=True)
+grid_options = gb.build()
+
+grid_response = AgGrid(
+    description_df,
+    gridOptions=grid_options,
+    update_mode=GridUpdateMode.VALUE_CHANGED,
+    fit_columns_on_grid_load=True,
+    allow_unsafe_jscode=True,
+    height=200
+)
+
+updated_df = grid_response["data"]
+
+# حفظه داخل session_state على شكل JSON
+st.session_state["description"] = updated_df.to_json(orient="records")
+
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
