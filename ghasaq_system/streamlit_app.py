@@ -97,7 +97,11 @@ with col5:
 
 # ========= Task Details Section =========
 st.markdown("### 🧾 Task Details")
-
+# استعادة جدول الوصف من session_state أو البدء بجدول فاضي
+try:
+    description_df = pd.read_json(st.session_state.get("description", "[]"))
+except:
+    description_df = pd.DataFrame(columns=["Column 1", "Column 2", "Column 3", "Column 4"])
 # زر لإضافة صف جديد (داخل الواجهة)
 add_col1, add_col2 = st.columns([1, 5])
 with add_col1:
