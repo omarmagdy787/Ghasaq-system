@@ -31,31 +31,36 @@ selected_label = st.selectbox("اختر المهمة للتعديل", [""] + lis
 selected_task = task_options[selected_label] if selected_label else {}
 
 # ========== الحقول ==========
-col1, col2, col3 = st.columns([0.5, 0.5, 1])
+col1, col2, col3,col4,col5  = st.columns([0.5, 0.5, 0.5,0.5.1])
 
 with col1:
     project_name = st.text_input("Project Name", value=selected_task.get("project_name", ""), key="project_name")
     number = st.text_input("Task Number", value=selected_task.get("number", ""), key="number")
     task_name = st.text_input("Task Name", value=selected_task.get("task_name", ""), key="task_name")
+    
+with col2:
     quantity = st.text_input("Quantity", value=selected_task.get("quantity", ""), key="quantity")
     category = st.text_input("Category", value=selected_task.get("category", ""), key="category")
-
-with col2:
     assigned_to = st.text_input("Assigned To", value=selected_task.get("assigned_to", ""), key="assigned_to")
+    
+with col3:
     from_text = st.text_input("From", value=selected_task.get("from", ""), key="from_text")
     to_text = st.text_input("To", value=selected_task.get("to", ""), key="to_text")
     tasks_depends = st.text_input("Tasks Depends On", value=selected_task.get("tasks_depends", ""), key="tasks_depends")
+    
+with col4:
     tasks_block = st.text_input("Tasks Blocked By", value=selected_task.get("tasks_block", ""), key="tasks_block")
-
-with col3:
     raw_date = selected_task.get("end_date")
     safe_end_date = pd.to_datetime(raw_date, errors="coerce") if raw_date else pd.Timestamp.today()
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
-    plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
+    
+with col5:
+     plan_b = st.text_input("Plan B", value=selected_task.get("plan_b", ""), key="plan_b")
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(selected_task.get("check", "Yes")), key="check")
     team_id_input = st.text_input("Team ID", value=selected_task.get("team_id", "") or "")
     team_id = team_id_input if team_id_input.strip() != "" else None
-    description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description")
+    description = st.text_area("Description", value=selected_task.get("description", ""), height=100, key="description") 
+    
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
