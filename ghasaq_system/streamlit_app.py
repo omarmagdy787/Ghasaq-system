@@ -101,6 +101,7 @@ with col_add:
 
         except Exception as e:
             st.error(f"❌ خطأ أثناء الحفظ: {e}")
+
 with col_update:
     if st.button("🔄 تحديث المهمة") and selected_task:
         try:
@@ -122,6 +123,17 @@ with col_update:
                 "description": description or None
             }).eq("id", selected_task["id"]).execute()
             st.success("✅ تم تحديث المهمة بنجاح")
+
+            # تفريغ الحقول بعد التحديث
+            for key in [
+                "project_name", "number", "task_name", "quantity", "category",
+                "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
+                "end_date", "plan_b", "check", "team_id", "description", "selected_label"
+            ]:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+
         except Exception as e:
             st.error(f"❌ خطأ أثناء التحديث: {e}")
 
@@ -165,6 +177,7 @@ try:
         st.info("لا توجد بيانات حالياً.")
 except Exception as e:
     st.error(f"❌ خطأ أثناء عرض البيانات: {e}")
+
 
 
 
