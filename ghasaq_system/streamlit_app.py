@@ -20,6 +20,30 @@ supabase: Client = create_client(url, key)
 st.set_page_config(page_title="Ghasaq System", layout="wide")
 st.title("📋 Ghasaq System")
 
+# ========== تهيئة session_state للقيم الافتراضية ==========
+default_keys = {
+    "project_name": "",
+    "number": "",
+    "task_name": "",
+    "quantity": "",
+    "category": "",
+    "assigned_to": "",
+    "from_text": "",
+    "to_text": "",
+    "tasks_depends": "",
+    "tasks_block": "",
+    "end_date": pd.Timestamp.today(),
+    "plan_b": "",
+    "check": "Yes",
+    "team_id_input": "",
+    "description": "",
+    "selected_label": ""
+}
+
+for key, default in default_keys.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
+
 # ================= جلب البيانات لتعبئة الخانات عند الاختيار =================
 edit_response = supabase.table(TABLE_NAME).select("*").execute()
 edit_data = edit_response.data
@@ -33,50 +57,45 @@ selected_task = task_options[selected_label] if selected_label else {}
 # ========== تحديث session_state بالقيم المختارة ==========
 if selected_task:
     for field, value in selected_task.items():
-        if field not in st.session_state:
+        if field in st.session_state:
             st.session_state[field] = value
 
 # ========== الحقول ==========
 col1, col2, col3,col4,col5  = st.columns([0.5, 0.5, 0.5,0.5,0.5])
 
 with col1:
-    project_name = st.text_input("Project Name", value=st.session_state.get("project_name", ""), key="project_name")
-    number = st.text_input("Task Number", value=st.session_state.get("number", ""), key="number")
-    task_name = st.text_input("Task Name", value=st.session_state.get("task_name", ""), key="task_name")
+    project_name = st.text_input("Project Name", key="project_name")
+    number = st.text_input("Task Number", key="number")
+    task_name = st.text_input("Task Name", key="task_name")
     
 with col2:
-    quantity = st.text_input("Quantity", value=st.session_state.get("quantity", ""), key="quantity")
-    category = st.text_input("Category", value=st.session_state.get("category", ""), key="category")
-    assigned_to = st.text_input("Assigned To", value=st.session_state.get("assigned_to", ""), key="assigned_to")
+    quantity = st.text_input("Quantity", key="quantity")
+    category = st.text_input("Category", key="category")
+    assigned_to = st.text_input("Assigned To", key="assigned_to")
     
 with col3:
-    from_text = st.text_input("From", value=st.session_state.get("from", ""), key="from_text")
-    to_text = st.text_input("To", value=st.session_state.get("to", ""), key="to_text")
-    tasks_depends = st.text_input("Tasks Depends On", value=st.session_state.get("tasks_depends", ""), key="tasks_depends")
+    from_text = st.text_input("From", key="from_text")
+    to_text = st.text_input("To", key="to_text")
+    tasks_depends = st.text_input("Tasks Depends On", key="tasks_depends")
     
 with col4:
-    tasks_block = st.text_input("Tasks Blocked By", value=st.session_state.get("tasks_block", ""), key="tasks_block")
+    tasks_block = st.text_input("Tasks Blocked By", key="tasks_block")
     raw_date = st.session_state.get("end_date", pd.Timestamp.today())
     safe_end_date = pd.to_datetime(raw_date, errors="coerce") if raw_date else pd.Timestamp.today()
     end_date = st.date_input("End Date", value=safe_end_date, key="end_date")
-    plan_b = st.text_input("Plan B", value=st.session_state.get("plan_b", ""), key="plan_b")
+    plan_b = st.text_input("Plan B", key="plan_b")
 
 with col5:
     check = st.selectbox("Check", ["Yes", "No"], index=["Yes", "No"].index(st.session_state.get("check", "Yes")), key="check")
-    team_id_input = st.text_input("Team ID", value=st.session_state.get("team_id_input", ""), key="team_id_input")
+    team_id_input = st.text_input("Team ID", key="team_id_input")
     team_id = team_id_input if team_id_input.strip() != "" else None
-    description = st.text_area("Description", value=st.session_state.get("description", ""), key="description")
+    description = st.text_area("Description", key="description")
 
 # ========== أزرار الإضافة والتحديث والحذف والتفريغ ==========
 st.markdown("---")
 col_update, col_add, col_delete, col_clear = st.columns([1, 1, 1, 1])
 
-# keys المستخدمة
-form_keys = [
-    "project_name", "number", "task_name", "quantity", "category",
-    "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
-    "end_date", "plan_b", "check", "team_id_input", "description", "selected_label"
-]
+form_keys = list(default_keys.keys())
 
 def clear_form():
     for key in form_keys:
