@@ -31,7 +31,7 @@ selected_label = st.selectbox("اختر المهمة للتعديل", [""] + lis
 selected_task = task_options[selected_label] if selected_label else {}
 
 # ========== الحقول ==========
-col1, col2, col3,col4,col5  = st.columns([0.5, 0.5, 0.5,0.5,0.1])
+col1, col2, col3,col4,col5  = st.columns([0.5, 0.5, 0.5,0.5,0.5])
 
 with col1:
     project_name = st.text_input("Project Name", value=selected_task.get("project_name", ""), key="project_name")
