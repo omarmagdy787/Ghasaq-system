@@ -85,7 +85,17 @@ with col_add:
                 "team_id": team_id,
                 "description": description or None
             }).execute()
-            st.success("✅ تم حفظ المهمة بنجاح")
+          st.success("✅ تم حفظ المهمة بنجاح")
+
+# تفريغ الحقول بعد الإضافة
+for key in [
+    "project_name", "number", "task_name", "quantity", "category",
+    "assigned_to", "from_text", "to_text", "tasks_depends", "tasks_block",
+    "end_date", "plan_b", "check", "team_id", "description", "selected_label"
+]:
+    if key in st.session_state:
+        del st.session_state[key]
+st.rerun()
         except Exception as e:
             st.error(f"❌ خطأ أثناء الحفظ: {e}")
 
