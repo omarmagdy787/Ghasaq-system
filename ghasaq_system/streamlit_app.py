@@ -103,23 +103,31 @@ try:
 except:
     description_df = pd.DataFrame(columns=["Column 1", "Column 2", "Column 3", "Column 4"])
 
+# إعداد خصائص الجدول (editable like Excel)
 gb = GridOptionsBuilder.from_dataframe(description_df)
 gb.configure_default_column(editable=True)
-gb.configure_grid_options(enableRangeSelection=True)
+gb.configure_grid_options(enableRowGroup=True, enableRangeSelection=True)
+gb.configure_side_bar()
+gb.configure_grid_options(domLayout='normal')  # مهم لتفعيل واجهة كاملة
+
 grid_options = gb.build()
 
+# عرض الجدول القابل للتعديل
 grid_response = AgGrid(
     description_df,
     gridOptions=grid_options,
-    update_mode=GridUpdateMode.VALUE_CHANGED,
+    update_mode=GridUpdateMode.MODEL_CHANGED,
     fit_columns_on_grid_load=True,
+    enable_enterprise_modules=True,
     allow_unsafe_jscode=True,
-    height=200
+    editable=True,
+    height=300
 )
 
+# البيانات المعدّلة
 updated_df = grid_response["data"]
 
-# حفظه داخل session_state على شكل JSON
+# حفظ التعديلات في session_state
 st.session_state["description"] = updated_df.to_json(orient="records")
 
 
