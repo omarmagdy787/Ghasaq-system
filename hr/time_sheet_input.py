@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 
 # تحديد مسار ملف الإكسل
-file_path = os.path.join("hr", "D_To_D sheet-DESKTOP-8NH5M00.xlsx")
+file_path = r"G:\My Drive\hr\D_To_D sheet-DESKTOP-8NH5M00.xlsx"
 sheet_name = "التشغيل"  # اسم الشيت داخل ملف الإكسل
 
 # واجهة الإدخال
