@@ -4,5 +4,3 @@ python-dotenv
 pandas
 supabase
 st-aggrid
-
-
