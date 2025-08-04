@@ -3,3 +3,5 @@ supabase
 python-dotenv
 streamlit-aggrid
 streamlit-autorefresh
+openpyxl
+
