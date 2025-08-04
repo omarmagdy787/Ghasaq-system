@@ -4,9 +4,9 @@ from openpyxl import load_workbook
 from datetime import datetime
 import os
 
-# مسار الملف
-file_path = r"C:\Users\Eng.Madyan\OneDrive\Desktop\قبل العيد\version-2\D_To_D sheet-DESKTOP-8NH5M00.xlsx"
-sheet_name = "التشغيل"
+file_path = os.path.join("hr", "D_To_D sheet-DESKTOP-8NH5M00.xlsx")
+wb = load_workbook(file_path)
+sheet = wb["التشغيل"]
 
 # واجهة الإدخال
 st.title("📝 تسجيل الحضور والانصراف")
