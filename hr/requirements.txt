@@ -1,6 +1,0 @@
-streamlit
-openpyxl
-python-dotenv
-pandas
-supabase
-st-aggrid
