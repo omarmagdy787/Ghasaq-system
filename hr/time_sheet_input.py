@@ -1,12 +1,11 @@
-
 import streamlit as st
 from openpyxl import load_workbook
 from datetime import datetime
 import os
 
+# تحديد مسار ملف الإكسل
 file_path = os.path.join("hr", "D_To_D sheet-DESKTOP-8NH5M00.xlsx")
-wb = load_workbook(file_path)
-sheet = wb["التشغيل"]
+sheet_name = "التشغيل"  # اسم الشيت داخل ملف الإكسل
 
 # واجهة الإدخال
 st.title("📝 تسجيل الحضور والانصراف")
@@ -17,7 +16,7 @@ if st.button("➕ إضافة صف جديد"):
     wb = load_workbook(file_path)
     ws = wb[sheet_name]
 
-    # نحدد أول صف فاضي
+    # نحدد أول صف فاضي من عند الصف 159
     row = 159
     while ws[f"R{row}"].value:
         row += 1
