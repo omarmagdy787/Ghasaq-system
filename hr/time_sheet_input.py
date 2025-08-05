@@ -6,8 +6,9 @@ from supabase import create_client, Client
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
 # الاتصال بـ Supabase
-url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_KEY"]
+url = st.secrets["url"]
+key = st.secrets["key"]
+TABLE_NAME = "time_sheet"
 supabase: Client = create_client(url, key)
 
 # واجهة الإدخال
