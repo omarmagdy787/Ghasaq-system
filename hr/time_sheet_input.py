@@ -11,54 +11,45 @@ key = st.secrets["key"]
 TABLE_NAME = "time_sheet"
 supabase: Client = create_client(url, key)
 
-# واجهة الإدخال
-st.title("📋 واجهة جدول التشغيل")
-name = st.text_input("الاسم")
-today = st.date_input("التاريخ", value=date.today())
-
 # الوظائف
-def add_time_in(name, date_value):
+def add_time_in(name):
     now = datetime.now().isoformat()
     data = {
         "name": name,
-        "date": str(date_value),
+        "date": str(date.today()),
         "from": now,
-        "project": "Default"  # لو حابب تضيف مشروع افتراضي
+        "project": "Default"
     }
 
     try:
         supabase.table(TABLE_NAME).insert(data).execute()
-        st.success("تم تسجيل وقت الدخول بنجاح")
-        # st.write(response)  ← تم حذفها
+        st.success(f"{name} ✅ تم تسجيل وقت الدخول")
     except Exception as e:
-        st.error("حدث خطأ أثناء إضافة وقت الدخول")
+        st.error("خطأ أثناء تسجيل الدخول")
         st.write(e)
 
-
-def add_time_out(name, today):
+def add_time_out(name):
     now = datetime.now().isoformat()
-    response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(today)).execute()
+    response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(date.today())).order("id", desc=True).limit(1).execute()
     if response.data:
         row_id = response.data[0]["id"]
         supabase.table(TABLE_NAME).update({"to": now}).eq("id", row_id).execute()
-        st.success(f"تم تسجيل الانصراف: {now}")
-        # st.write(response)  ← لو كنت بتعرضها هنا كمان، شيلها
+        st.success(f"{name} ⛔ تم تسجيل الانصراف")
     else:
-        st.warning("لا يوجد صف مسجل لهذا الاسم والتاريخ لتحديثه.")
+        st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
 
+# عرض العنوان
+st.title("📋 واجهة الحضور والانصراف")
 
-# الأزرار
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("✅ Time In"):
-        if name:
-            add_time_in(name, today)
-        else:
-            st.warning("من فضلك أدخل الاسم أولًا.")
+# أسماء الأشخاص
+people = ["زياد", "عمر", "علي", "يوسف"]
 
-with col2:
-    if st.button("⛔ Time Out"):
-        if name:
-            add_time_out(name, today)
-        else:
-            st.warning("من فضلك أدخل الاسم أولًا.")
+# رسم الأزرار لكل شخص
+for person in people:
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button(f"{person} ✅ IN"):
+            add_time_in(person)
+    with col2:
+        if st.button(f"{person} ⛔ OUT"):
+            add_time_out(person)
