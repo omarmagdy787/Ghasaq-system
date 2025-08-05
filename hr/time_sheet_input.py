@@ -18,32 +18,32 @@ today = st.date_input("التاريخ", value=date.today())
 
 # الوظائف
 def add_time_in(name, date_value):
-    now = datetime.now().strftime("%H:%M:%S")
+    now = datetime.now().isoformat()
     data = {
         "name": name,
         "date": str(date_value),
-        "time_in": now
+        "from": now,
+        "project": "Default"  # لو حابب تضيف مشروع افتراضي
     }
 
     try:
         response = supabase.table(TABLE_NAME).insert(data).execute()
         st.success("تم تسجيل وقت الدخول بنجاح")
-        st.write(response)  # عرض الاستجابة من Supabase
+        st.write(response)
     except Exception as e:
         st.error("حدث خطأ أثناء إضافة وقت الدخول")
         st.write(e)
 
-
 def add_time_out(name, today):
-    now = datetime.now().strftime("%H:%M:%S")
-    # تحديث الصف الموجود بنفس الاسم والتاريخ
+    now = datetime.now().isoformat()
     response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(today)).execute()
     if response.data:
         row_id = response.data[0]["id"]
-        supabase.table(TABLE_NAME).update({"time_out": now}).eq("id", row_id).execute()
+        supabase.table(TABLE_NAME).update({"to": now}).eq("id", row_id).execute()
         st.success(f"تم تسجيل الانصراف: {now}")
     else:
         st.warning("لا يوجد صف مسجل لهذا الاسم والتاريخ لتحديثه.")
+
 
 # الأزرار
 col1, col2 = st.columns(2)
