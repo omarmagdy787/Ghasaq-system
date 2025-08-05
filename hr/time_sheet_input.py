@@ -26,13 +26,6 @@ def add_time_in(name, date_value):
         "project": "Default"  # لو حابب تضيف مشروع افتراضي
     }
 
-    try:
-        response = supabase.table(TABLE_NAME).insert(data).execute()
-        st.success("تم تسجيل وقت الدخول بنجاح")
-        st.write(response)
-    except Exception as e:
-        st.error("حدث خطأ أثناء إضافة وقت الدخول")
-        st.write(e)
 
 def add_time_out(name, today):
     now = datetime.now().isoformat()
