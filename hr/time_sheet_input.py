@@ -26,6 +26,14 @@ def add_time_in(name, date_value):
         "project": "Default"  # لو حابب تضيف مشروع افتراضي
     }
 
+    try:
+        supabase.table(TABLE_NAME).insert(data).execute()
+        st.success("تم تسجيل وقت الدخول بنجاح")
+        # st.write(response)  ← تم حذفها
+    except Exception as e:
+        st.error("حدث خطأ أثناء إضافة وقت الدخول")
+        st.write(e)
+
 
 def add_time_out(name, today):
     now = datetime.now().isoformat()
@@ -34,6 +42,7 @@ def add_time_out(name, today):
         row_id = response.data[0]["id"]
         supabase.table(TABLE_NAME).update({"to": now}).eq("id", row_id).execute()
         st.success(f"تم تسجيل الانصراف: {now}")
+        # st.write(response)  ← لو كنت بتعرضها هنا كمان، شيلها
     else:
         st.warning("لا يوجد صف مسجل لهذا الاسم والتاريخ لتحديثه.")
 
