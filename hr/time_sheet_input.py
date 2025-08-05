@@ -17,15 +17,22 @@ name = st.text_input("الاسم")
 today = st.date_input("التاريخ", value=date.today())
 
 # الوظائف
-def add_time_in(name, today):
+def add_time_in(name, date_value):
     now = datetime.now().strftime("%H:%M:%S")
     data = {
         "name": name,
-        "date": str(today),
+        "date": str(date_value),
         "time_in": now
     }
-    supabase.table(TABLE_NAME).insert(data).execute()
-    st.success(f"تم تسجيل الحضور: {now}")
+
+    try:
+        response = supabase.table(TABLE_NAME).insert(data).execute()
+        st.success("تم تسجيل وقت الدخول بنجاح")
+        st.write(response)  # عرض الاستجابة من Supabase
+    except Exception as e:
+        st.error("حدث خطأ أثناء إضافة وقت الدخول")
+        st.write(e)
+
 
 def add_time_out(name, today):
     now = datetime.now().strftime("%H:%M:%S")
