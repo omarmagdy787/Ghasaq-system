@@ -22,7 +22,13 @@ authenticator = stauth.Authenticate(
 )
 
 # تسجيل الدخول
-name, authentication_status, username = authenticator.login("Login", location='main')
+login_info = authenticator.login("Login", location='main')
+if login_info:
+    name = login_info["name"]
+    authentication_status = login_info["authentication_status"]
+    username = login_info["username"]
+else:
+    name = authentication_status = username = None
 
 if authentication_status == False:
     st.error("Username or password is incorrect")
@@ -85,5 +91,7 @@ if authentication_status:
                 add_time_out(name)
     else:
         st.warning("❌ لا يوجد زرار مسجّل لك في النظام")
+
+
 
 
