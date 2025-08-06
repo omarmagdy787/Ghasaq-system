@@ -61,7 +61,7 @@ def login():
             cookies["login_time"] = datetime.now().isoformat()
             cookies.save()
             st.success(f"مرحبًا {username} 👋")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("❌ اسم المستخدم أو الكود غير صحيح")
 
