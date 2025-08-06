@@ -9,8 +9,8 @@ st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
 # الاتصال بـ Supabase
 url = st.secrets["url"]
-anon_key = st.secrets["key"]
-supabase = create_client(url, anon_key)
+key = st.secrets["key"]
+supabase = create_client(url, key)
 
 # وظيفة تسجيل الدخول
 def login_user(email, password):
