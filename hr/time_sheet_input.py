@@ -7,12 +7,12 @@ import requests
 # إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
-# الاتصال الأساسي بـ Supabase (فقط لاستخدام auth)
+# الاتصال بـ Supabase
 url = st.secrets["url"]
 anon_key = st.secrets["key"]
 supabase = create_client(url, anon_key)
 
-# وظائف الدخول
+# وظيفة تسجيل الدخول
 def login_user(email, password):
     try:
         response = supabase.auth.sign_in_with_password({
@@ -25,7 +25,7 @@ def login_user(email, password):
         st.write(e)
         return None
 
-# وظيفة إضافة وقت الدخول باستخدام access token
+# تسجيل وقت الدخول
 def add_time_in(name, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
@@ -49,7 +49,7 @@ def add_time_in(name, token):
         st.error("❌ خطأ أثناء تسجيل الدخول")
         st.write(response.json())
 
-# وظيفة تسجيل الانصراف
+# تسجيل وقت الانصراف
 def add_time_out(name, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     headers = {
@@ -57,7 +57,6 @@ def add_time_out(name, token):
         "apikey": anon_key,
     }
 
-    # الحصول على آخر صف لليوم الحالي
     response = requests.get(
         f"{url}/rest/v1/time_sheet?select=id&name=eq.{name}&date=eq.{date.today()}&order=id.desc&limit=1",
         headers=headers,
@@ -82,6 +81,8 @@ def add_time_out(name, token):
 
 if "session" not in st.session_state:
     st.session_state.session = None
+if "user" not in st.session_state:
+    st.session_state.user = None
 
 st.title("📋 واجهة الحضور والانصراف")
 
@@ -92,15 +93,16 @@ if not st.session_state.session:
         password = st.text_input("🔑 كلمة السر", type="password")
         submitted = st.form_submit_button("تسجيل الدخول")
         if submitted:
-            session = login_user(email, password)
-            if session:
-                st.session_state.session = session
+            auth_response = login_user(email, password)
+            if auth_response and auth_response.session:
+                st.session_state.session = auth_response.session
+                st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
                 st.rerun()
 else:
-    user = st.session_state.session.user
+    user = st.session_state.user
     access_token = st.session_state.session.access_token
-    name = user.user_metadata.get("name") or user.email.split("@")[0]  # اسم افتراضي
+    name = user.user_metadata.get("name") or user.email.split("@")[0]
 
     st.success(f"👋 مرحبًا، {name}")
 
@@ -115,6 +117,7 @@ else:
 
     if st.button("🚪 تسجيل الخروج"):
         st.session_state.session = None
+        st.session_state.user = None
         st.rerun()
 
 
