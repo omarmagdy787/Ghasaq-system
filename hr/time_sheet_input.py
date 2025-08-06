@@ -123,12 +123,4 @@ else:
         if st.button("✅ IN"):
             add_time_in(name, user_id, access_token)
 
-    with col2:
-        if st.button("⛔ OUT"):
-            add_time_out(name, access_token)
-
-    if st.button("🚪 تسجيل الخروج"):
-        st.session_state.session = None
-        st.session_state.user = None
-        st.experimental_rerun()
 
