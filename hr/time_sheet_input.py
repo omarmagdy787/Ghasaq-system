@@ -2,7 +2,7 @@ import streamlit as st
 import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
-st.write(stauth.__version__)
+
 from datetime import date, datetime
 from supabase import create_client, Client
 from zoneinfo import ZoneInfo  # لإضافة توقيت مصر
@@ -21,16 +21,8 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days'],
 )
 
-# تسجيل الدخول
-# تسجيل الدخول
-login_info = authenticator.login("Login", location='main')
-
-if login_info is not None and login_info["authentication_status"]:
-    name = login_info["name"]
-    authentication_status = login_info["authentication_status"]
-    username = login_info["username"]
-else:
-    name = authentication_status = username = None
+# ✅ تسجيل الدخول بالطريقة المتوافقة مع الإصدار القديم
+name, authentication_status, username = authenticator.login("Login")
 
 if authentication_status == False:
     st.error("Username or password is incorrect")
@@ -93,7 +85,6 @@ if authentication_status:
                 add_time_out(name)
     else:
         st.warning("❌ لا يوجد زرار مسجّل لك في النظام")
-
 
 
 
