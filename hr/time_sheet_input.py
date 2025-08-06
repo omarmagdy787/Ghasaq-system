@@ -1,72 +1,121 @@
 import streamlit as st
 from datetime import date, datetime
-from supabase import create_client, Client
-from zoneinfo import ZoneInfo  # توقيت مصر
+from supabase import create_client
+from zoneinfo import ZoneInfo
+import requests
 
 # إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
-# الاتصال بـ Supabase
+# الاتصال الأساسي بـ Supabase (فقط لاستخدام auth)
 url = st.secrets["url"]
-key = st.secrets["key"]
-TABLE_NAME = "time_sheet"
-supabase: Client = create_client(url, key)
+anon_key = st.secrets["key"]
+supabase = create_client(url, anon_key)
 
-# بيانات الموظفين (كلمة سر + user_id)
-employees = {
-    "زياد": {"password": "1234", "user_id": "uid_ziad"},
-    "عمر": {"password": "123456", "user_id": "92d60b3e-98e0-4b9c-8933-2bf60a54e9cc"},
-    "علي": {"password": "abcd", "user_id": "uid_ali"},
-    "يوسف": {"password": "efgh", "user_id": "uid_youssef"},
-}
+# وظائف الدخول
+def login_user(email, password):
+    try:
+        response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+        return response
+    except Exception as e:
+        st.error("فشل تسجيل الدخول")
+        st.write(e)
+        return None
 
-# الوظائف
-def add_time_in(name, user_id):
+# وظيفة إضافة وقت الدخول باستخدام access token
+def add_time_in(name, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user_id,
         "date": str(date.today()),
         "from": now,
         "project": "Default"
     }
-
-    try:
-        supabase.table(TABLE_NAME).insert(data).execute()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "apikey": anon_key,
+    }
+    response = requests.post(
+        f"{url}/rest/v1/time_sheet",
+        json=data,
+        headers=headers,
+    )
+    if response.status_code == 201:
         st.success(f"{name} ✅ تم تسجيل وقت الدخول")
-    except Exception as e:
-        st.error("خطأ أثناء تسجيل الدخول")
-        st.write(e)
+    else:
+        st.error("❌ خطأ أثناء تسجيل الدخول")
+        st.write(response.json())
 
-def add_time_out(name, user_id):
+# وظيفة تسجيل الانصراف
+def add_time_out(name, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
-    response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("user_id", user_id).eq("date", str(date.today())).order("id", desc=True).limit(1).execute()
-    if response.data:
-        row_id = response.data[0]["id"]
-        supabase.table(TABLE_NAME).update({"to": now}).eq("id", row_id).execute()
-        st.success(f"{name} ⛔ تم تسجيل الانصراف")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "apikey": anon_key,
+    }
+
+    # الحصول على آخر صف لليوم الحالي
+    response = requests.get(
+        f"{url}/rest/v1/time_sheet?select=id&name=eq.{name}&date=eq.{date.today()}&order=id.desc&limit=1",
+        headers=headers,
+    )
+    if response.status_code == 200 and response.json():
+        row_id = response.json()[0]["id"]
+        update_response = requests.patch(
+            f"{url}/rest/v1/time_sheet?id=eq.{row_id}",
+            json={"to": now},
+            headers=headers,
+        )
+        if update_response.status_code == 204:
+            st.success(f"{name} ⛔ تم تسجيل الانصراف")
+        else:
+            st.error("❌ خطأ أثناء تسجيل الانصراف")
+            st.write(update_response.json())
     else:
         st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
 
-# عرض العنوان
+# -----------------------------
+# واجهة المستخدم
+
+if "session" not in st.session_state:
+    st.session_state.session = None
+
 st.title("📋 واجهة الحضور والانصراف")
 
-# زرارين لكل شخص
-for person, info in employees.items():
-    with st.expander(f"{person}"):
-        password_input = st.text_input(f"ادخل كلمة السر لـ {person}", type="password", key=f"pw_{person}")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button(f"{person} ✅ IN", key=f"in_{person}"):
-                if password_input == info["password"]:
-                    add_time_in(person, info["user_id"])
-                else:
-                    st.error("❌ كلمة السر غير صحيحة")
-        with col2:
-            if st.button(f"{person} ⛔ OUT", key=f"out_{person}"):
-                if password_input == info["password"]:
-                    add_time_out(person, info["user_id"])
-                else:
-                    st.error("❌ كلمة السر غير صحيحة")
+if not st.session_state.session:
+    with st.form("login_form"):
+        st.subheader("🔐 تسجيل الدخول")
+        email = st.text_input("📧 البريد الإلكتروني")
+        password = st.text_input("🔑 كلمة السر", type="password")
+        submitted = st.form_submit_button("تسجيل الدخول")
+        if submitted:
+            session = login_user(email, password)
+            if session:
+                st.session_state.session = session
+                st.success("✅ تم تسجيل الدخول")
+                st.rerun()
+else:
+    user = st.session_state.session.user
+    access_token = st.session_state.session.access_token
+    name = user.user_metadata.get("name") or user.email.split("@")[0]  # اسم افتراضي
+
+    st.success(f"👋 مرحبًا، {name}")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("✅ IN"):
+            add_time_in(name, access_token)
+
+    with col2:
+        if st.button("⛔ OUT"):
+            add_time_out(name, access_token)
+
+    if st.button("🚪 تسجيل الخروج"):
+        st.session_state.session = None
+        st.rerun()
+
 
 
