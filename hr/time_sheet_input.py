@@ -27,6 +27,7 @@ def login_user(email, password):
 
 # تسجيل وقت الدخول
 def add_time_in(name, user_id):
+    st.write(f"User ID (auth.uid): {user_id}")
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
