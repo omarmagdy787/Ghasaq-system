@@ -30,7 +30,7 @@ def add_time_in(name, user_id, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user_id,  # 👈 مهم علشان الـ RLS
+        "user_id": user_id,  # مهم علشان RLS
         "date": str(date.today()),
         "from": now,
         "project": "Default"
@@ -38,6 +38,7 @@ def add_time_in(name, user_id, token):
     headers = {
         "Authorization": f"Bearer {token}",
         "apikey": anon_key,
+        "Content-Type": "application/json"
     }
     response = requests.post(
         f"{url}/rest/v1/time_sheet",
@@ -48,7 +49,11 @@ def add_time_in(name, user_id, token):
         st.success(f"{name} ✅ تم تسجيل وقت الدخول")
     else:
         st.error("❌ خطأ أثناء تسجيل الدخول")
-        st.write(response.json())
+        st.markdown("### 🐞 تفاصيل الخطأ:")
+        st.write("🔢 Status Code:", response.status_code)
+        st.write("🧾 Response JSON:", response.json())
+        st.write("📤 Data Sent:", data)
+        st.write("🧾 Headers:", headers)
 
 # تسجيل وقت الانصراف
 def add_time_out(name, token):
@@ -56,8 +61,8 @@ def add_time_out(name, token):
     headers = {
         "Authorization": f"Bearer {token}",
         "apikey": anon_key,
+        "Content-Type": "application/json"
     }
-
     response = requests.get(
         f"{url}/rest/v1/time_sheet?select=id&name=eq.{name}&date=eq.{date.today()}&order=id.desc&limit=1",
         headers=headers,
@@ -73,9 +78,14 @@ def add_time_out(name, token):
             st.success(f"{name} ⛔ تم تسجيل الانصراف")
         else:
             st.error("❌ خطأ أثناء تسجيل الانصراف")
-            st.write(update_response.json())
+            st.markdown("### 🐞 تفاصيل الخطأ:")
+            st.write("🔢 Status Code:", update_response.status_code)
+            st.write("🧾 Response JSON:", update_response.json())
+            st.write("📤 Data Sent:", {"to": now})
+            st.write("🧾 Headers:", headers)
     else:
         st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
+        st.write("🔍 تفاصيل البحث:", response.status_code, response.text)
 
 # -----------------------------
 # واجهة المستخدم
@@ -99,11 +109,11 @@ if not st.session_state.session:
                 st.session_state.session = auth_response.session
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
-                st.experimental_rerun()  # هنا استدعاء rerun بعد تحديث session_state
+                st.experimental_rerun()
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
-    user_id = user.id  # 👈 ده الـ UID
+    user_id = user.id  # UID من Supabase
     name = user.user_metadata.get("name") or user.email.split("@")[0]
 
     st.success(f"👋 مرحبًا، {name}")
@@ -119,6 +129,9 @@ else:
 
     if st.button("🚪 تسجيل الخروج"):
         st.session_state.session = None
+        st.session_state.user = None
+        st.experimental_rerun()
+
         st.session_state.user = None
         st.experimental_rerun()
 
