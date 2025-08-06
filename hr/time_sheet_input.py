@@ -2,7 +2,7 @@ import streamlit as st
 import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
-
+st.write(stauth.__version__)
 from datetime import date, datetime
 from supabase import create_client, Client
 from zoneinfo import ZoneInfo  # لإضافة توقيت مصر
