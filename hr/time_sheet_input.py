@@ -122,6 +122,8 @@ else:
         st.session_state.user = None
         st.write(">>> سيتم إعادة تشغيل التطبيق بعد تسجيل الخروج")
         st.experimental_rerun()
+        else:
+                st.error("فشل تسجيل الدخول، يرجى التحقق من البيانات")
 
 
 
