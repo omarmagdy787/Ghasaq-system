@@ -30,7 +30,7 @@ def add_time_in(name, user_id):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user_id,  # مهم جدا لـ RLS policies
+        "user_id": user.id,  # مهم جدا لـ RLS policies
         "date": str(date.today()),
         "from": now,
         "project": "Default"
