@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import date, datetime
 from supabase import create_client, Client
+from zoneinfo import ZoneInfo  # لإضافة توقيت مصر
 
 # إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
@@ -13,7 +14,7 @@ supabase: Client = create_client(url, key)
 
 # الوظائف
 def add_time_in(name):
-    now = datetime.now().isoformat()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
         "date": str(date.today()),
@@ -29,7 +30,7 @@ def add_time_in(name):
         st.write(e)
 
 def add_time_out(name):
-    now = datetime.now().isoformat()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(date.today())).order("id", desc=True).limit(1).execute()
     if response.data:
         row_id = response.data[0]["id"]
@@ -53,3 +54,4 @@ for person in people:
     with col2:
         if st.button(f"{person} ⛔ OUT"):
             add_time_out(person)
+
