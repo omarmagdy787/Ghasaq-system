@@ -22,8 +22,10 @@ authenticator = stauth.Authenticate(
 )
 
 # تسجيل الدخول
-name, authentication_status, username = authenticator.login("Login", location='main')
-if login_info:
+# تسجيل الدخول
+login_info = authenticator.login("Login", location='main')
+
+if login_info is not None and login_info["authentication_status"]:
     name = login_info["name"]
     authentication_status = login_info["authentication_status"]
     username = login_info["username"]
