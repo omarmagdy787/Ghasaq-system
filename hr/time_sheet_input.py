@@ -22,7 +22,7 @@ authenticator = stauth.Authenticate(
 )
 
 # تسجيل الدخول
-login_info = authenticator.login("Login", location='main')
+login_info = authenticator.login("Login")
 if login_info:
     name = login_info["name"]
     authentication_status = login_info["authentication_status"]
