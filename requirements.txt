@@ -8,3 +8,4 @@ pandas
 streamlit-authenticator
 PyYAML
 streamlit-cookies-manager
+
