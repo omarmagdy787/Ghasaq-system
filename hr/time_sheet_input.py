@@ -95,6 +95,8 @@ if not st.session_state.session:
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
                 st.experimental_rerun()
+            else:
+                st.error("فشل تسجيل الدخول، يرجى التحقق من البيانات")
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
@@ -115,22 +117,11 @@ else:
     else:
         st.error("🚫 هذا المستخدم غير مصرح له باستخدام النظام")
 
-  if submitted:
-    auth_response = login_user(email, password)
-    if auth_response and auth_response.session:
-        st.session_state.session = auth_response.session
-        st.session_state.user = auth_response.user
-        st.success("✅ تم تسجيل الدخول")
-        st.write(">>> سيتم إعادة تشغيل التطبيق بعد تسجيل الدخول")
+    if st.button("🚪 تسجيل الخروج"):
+        st.session_state.session = None
+        st.session_state.user = None
+        st.write(">>> سيتم إعادة تشغيل التطبيق بعد تسجيل الخروج")
         st.experimental_rerun()
-
-# ...
-
-if st.button("🚪 تسجيل الخروج"):
-    st.session_state.session = None
-    st.session_state.user = None
-    st.write(">>> سيتم إعادة تشغيل التطبيق بعد تسجيل الخروج")
-    st.experimental_rerun()
 
 
 
