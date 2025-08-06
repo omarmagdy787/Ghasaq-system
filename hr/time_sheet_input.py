@@ -37,7 +37,7 @@ def add_time_in(name, user_id, token):
     }
     headers = {
         "Authorization": f"Bearer {token}",
-        "apikey": anon_key,
+        "apikey": key,
     }
     response = requests.post(
         f"{url}/rest/v1/time_sheet",
