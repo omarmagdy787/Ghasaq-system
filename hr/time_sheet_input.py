@@ -10,7 +10,6 @@ key = st.secrets["key"]
 TABLE_NAME = "time_sheet"
 supabase: Client = create_client(url, key)
 
-# تخزين بيانات المستخدمين (الإيميل والاسم)
 users = {
     "user1@gmail.com": "زياد",
     "user2@gmail.com": "عمر",
@@ -105,7 +104,6 @@ else:
 
     st.success(f"👋 مرحبًا، {name}")
 
-    # نتأكد إن الإيميل موجود في users
     if email in users:
         col1, col2 = st.columns(2)
         with col1:
@@ -121,7 +119,6 @@ else:
         st.session_state.session = None
         st.session_state.user = None
         st.experimental_rerun()
-
 
 
 
