@@ -12,22 +12,25 @@ url = st.secrets["url"]
 anon_key = st.secrets["key"]
 supabase = create_client(url, anon_key)
 
-def debug_response(response, data_sent):
-    st.write("🔢 Status Code:", response.status_code)
+# وظيفة تسجيل الدخول
+def login_user(email, password):
     try:
-        st.write("🧾 Response JSON:\n", response.json())
-    except Exception:
-        st.write("🧾 Response Text:\n", response.text)
-    st.write("📤 Data Sent:\n", data_sent)
-    st.write("🧾 Headers:\n", response.request.headers)
-    st.write("📥 Request URL:\n", response.request.url)
+        response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+        return response
+    except Exception as e:
+        st.error("فشل تسجيل الدخول")
+        st.write(e)
+        return None
 
-# وظيفة تسجيل وقت الدخول مع كشف الأخطاء
+# تسجيل وقت الدخول
 def add_time_in(name, user_id, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user_id,  # مهم للـ RLS
+        "user_id": user_id,  # 👈 مهم علشان الـ RLS
         "date": str(date.today()),
         "from": now,
         "project": "Default"
@@ -35,20 +38,19 @@ def add_time_in(name, user_id, token):
     headers = {
         "Authorization": f"Bearer {token}",
         "apikey": anon_key,
-        "Content-Type": "application/json"
     }
-    post_url = f"{url}/rest/v1/time_sheet"  # تأكد اسم الجدول هنا
-    st.write(f"📡 إرسال البيانات إلى: {post_url}")
-
-    response = requests.post(post_url, json=data, headers=headers)
-
+    response = requests.post(
+        f"{url}/rest/v1/time_sheet",
+        json=data,
+        headers=headers,
+    )
     if response.status_code == 201:
         st.success(f"{name} ✅ تم تسجيل وقت الدخول")
     else:
         st.error("❌ خطأ أثناء تسجيل الدخول")
-        debug_response(response, data)
+        st.write(response.json())
 
-# تسجيل وقت الانصراف مع كشف الأخطاء
+# تسجيل وقت الانصراف
 def add_time_out(name, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     headers = {
@@ -56,26 +58,24 @@ def add_time_out(name, token):
         "apikey": anon_key,
     }
 
-    get_url = f"{url}/rest/v1/time_sheet?select=id&name=eq.{name}&date=eq.{date.today()}&order=id.desc&limit=1"
-    st.write(f"📡 طلب آخر تسجيل دخول اليوم من: {get_url}")
-
-    response = requests.get(get_url, headers=headers)
-
+    response = requests.get(
+        f"{url}/rest/v1/time_sheet?select=id&name=eq.{name}&date=eq.{date.today()}&order=id.desc&limit=1",
+        headers=headers,
+    )
     if response.status_code == 200 and response.json():
         row_id = response.json()[0]["id"]
-        patch_url = f"{url}/rest/v1/time_sheet?id=eq.{row_id}"
-        st.write(f"📡 تحديث سجل الانصراف على: {patch_url}")
-
-        update_response = requests.patch(patch_url, json={"to": now}, headers=headers)
-
+        update_response = requests.patch(
+            f"{url}/rest/v1/time_sheet?id=eq.{row_id}",
+            json={"to": now},
+            headers=headers,
+        )
         if update_response.status_code == 204:
             st.success(f"{name} ⛔ تم تسجيل الانصراف")
         else:
             st.error("❌ خطأ أثناء تسجيل الانصراف")
-            debug_response(update_response, {"to": now})
+            st.write(update_response.json())
     else:
         st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
-        debug_response(response, {})
 
 # -----------------------------
 # واجهة المستخدم
@@ -94,21 +94,16 @@ if not st.session_state.session:
         password = st.text_input("🔑 كلمة السر", type="password")
         submitted = st.form_submit_button("تسجيل الدخول")
         if submitted:
-            auth_response = supabase.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
+            auth_response = login_user(email, password)
             if auth_response and auth_response.session:
                 st.session_state.session = auth_response.session
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
-                st.experimental_rerun()
-            else:
-                st.error("❌ فشل تسجيل الدخول")
+                st.experimental_rerun()  # هنا استدعاء rerun بعد تحديث session_state
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
-    user_id = user.id
+    user_id = user.id  # 👈 ده الـ UID
     name = user.user_metadata.get("name") or user.email.split("@")[0]
 
     st.success(f"👋 مرحبًا، {name}")
@@ -126,5 +121,6 @@ else:
         st.session_state.session = None
         st.session_state.user = None
         st.experimental_rerun()
+
 
 
