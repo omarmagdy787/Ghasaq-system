@@ -15,7 +15,7 @@ supabase: Client = create_client(url, key)
 # بيانات الموظفين (كلمة سر + user_id)
 employees = {
     "زياد": {"password": "1234", "user_id": "uid_ziad"},
-    "عمر": {"password": "5678", "user_id": "uid_omar"},
+    "عمر": {"password": "123456", "user_id": "92d60b3e-98e0-4b9c-8933-2bf60a54e9cc"},
     "علي": {"password": "abcd", "user_id": "uid_ali"},
     "يوسف": {"password": "efgh", "user_id": "uid_youssef"},
 }
