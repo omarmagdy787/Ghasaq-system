@@ -3,16 +3,20 @@ from datetime import date, datetime
 from supabase import create_client, Client
 from zoneinfo import ZoneInfo
 
-# إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
-# الاتصال بـ Supabase
 url = st.secrets["url"]
 key = st.secrets["key"]
 TABLE_NAME = "time_sheet"
 supabase: Client = create_client(url, key)
 
-# تسجيل الدخول
+# تخزين بيانات المستخدمين (الإيميل والاسم)
+users = {
+    "user1@gmail.com": "زياد",
+    "user2@gmail.com": "عمر",
+    "user3@gmail.com": "علي",
+}
+
 def login_user(email, password):
     try:
         response = supabase.auth.sign_in_with_password({
@@ -21,17 +25,15 @@ def login_user(email, password):
         })
         return response
     except Exception as e:
-        st.error("❌ فشل تسجيل الدخول")
+        st.error("فشل تسجيل الدخول")
         st.write(e)
         return None
 
-# تسجيل وقت الدخول
 def add_time_in(name, user_id):
-    st.write(f"User ID (auth.uid): {user_id}")
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user_id,  # مهم جدا لـ RLS policies
+        "user_id": user_id,
         "date": str(date.today()),
         "from": now,
         "project": "Default"
@@ -41,16 +43,11 @@ def add_time_in(name, user_id):
         if res.status_code == 201:
             st.success(f"{name} ✅ تم تسجيل وقت الدخول")
         else:
-            st.error(f"❌ خطأ أثناء تسجيل الدخول")
-            st.markdown("### 🐞 تفاصيل الخطأ:")
-            st.write("🔢 Status Code:", res.status_code)
-            st.write("🧾 Response Data:", res.data)
-            st.write("📤 Data Sent:", data)
+            st.error(f"❌ خطأ أثناء تسجيل الدخول: {res.data}")
     except Exception as e:
-        st.error("❌ حدث استثناء أثناء تسجيل الدخول")
+        st.error("❌ حدث خطأ أثناء تسجيل الدخول")
         st.write(e)
 
-# تسجيل وقت الانصراف
 def add_time_out(name, user_id):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     try:
@@ -71,20 +68,14 @@ def add_time_out(name, user_id):
             if update_response.status_code == 204:
                 st.success(f"{name} ⛔ تم تسجيل الانصراف")
             else:
-                st.error(f"❌ خطأ أثناء تسجيل الانصراف")
-                st.markdown("### 🐞 تفاصيل الخطأ:")
-                st.write("🔢 Status Code:", update_response.status_code)
-                st.write("🧾 Response Data:", update_response.data)
-                st.write("📤 Data Sent:", {"to": now})
+                st.error(f"❌ خطأ أثناء تسجيل الانصراف: {update_response.data}")
         else:
             st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
     except Exception as e:
-        st.error("❌ حدث استثناء أثناء تسجيل الانصراف")
+        st.error("❌ حدث خطأ أثناء تسجيل الانصراف")
         st.write(e)
 
-# -----------------------------
-# واجهة المستخدم
-
+# ----------------
 if "session" not in st.session_state:
     st.session_state.session = None
 if "user" not in st.session_state:
@@ -92,7 +83,6 @@ if "user" not in st.session_state:
 
 st.title("📋 واجهة الحضور والانصراف")
 
-# لو مش مسجل دخول، نعرض الفورم
 if not st.session_state.session:
     with st.form("login_form"):
         st.subheader("🔐 تسجيل الدخول")
@@ -106,27 +96,32 @@ if not st.session_state.session:
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
                 st.experimental_rerun()
-            else:
-                st.error("❌ فشل في تسجيل الدخول، يرجى التحقق من البريد وكلمة السر")
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
-    user_id = user.id  # UID من Supabase
-    name = user.user_metadata.get("name") or user.email.split("@")[0]
+    user_id = user.id
+    email = user.email
+    name = user.user_metadata.get("name") or email.split("@")[0]
 
     st.success(f"👋 مرحبًا، {name}")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("✅ IN"):
-            add_time_in(name, user_id)
-
-    with col2:
-        if st.button("⛔ OUT"):
-            add_time_out(name, user_id)
+    # نتأكد إن الإيميل موجود في users
+    if email in users:
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ IN"):
+                add_time_in(name, user_id)
+        with col2:
+            if st.button("⛔ OUT"):
+                add_time_out(name, user_id)
+    else:
+        st.error("🚫 هذا المستخدم غير مصرح له باستخدام النظام")
 
     if st.button("🚪 تسجيل الخروج"):
         st.session_state.session = None
+        st.session_state.user = None
+        st.experimental_rerun()
+
         st.session_state.user = None
         st.experimental_rerun()
 
