@@ -1,9 +1,19 @@
 import streamlit as st
 from datetime import date, datetime, timedelta
 from supabase import create_client, Client
+from streamlit_cookies_manager import EncryptedCookieManager
+import json
 
 # إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
+
+# إعداد الكوكيز
+cookies = EncryptedCookieManager(
+    prefix="timesheet_",
+    password="omar"  # ← كلمة السر هنا تم تعديلها
+)
+if not cookies.ready():
+    st.stop()
 
 # الاتصال بـ Supabase
 url = st.secrets["url"]
@@ -11,7 +21,7 @@ key = st.secrets["key"]
 TABLE_NAME = "time_sheet"
 supabase: Client = create_client(url, key)
 
-# بيانات الدخول (ممكن تيجي لاحقًا من Supabase)
+# بيانات المستخدمين
 users = {
     "زياد": "1111",
     "عمر": "2222",
@@ -19,23 +29,23 @@ users = {
     "يوسف": "4444"
 }
 
-# تهيئة حالة الجلسة
-if "user" not in st.session_state:
-    st.session_state["user"] = None
-if "login_time" not in st.session_state:
-    st.session_state["login_time"] = None
+# التحقق من الجلسة من الكوكيز
+cookie_user = cookies.get("user")
+cookie_time = cookies.get("login_time")
 
-# دالة التحقق من مرور أسبوع
+# دالة التحقق من انتهاء الأسبوع
 def session_expired():
-    if st.session_state["login_time"] is None:
+    if not cookie_time:
         return True
-    return datetime.now() - st.session_state["login_time"] > timedelta(days=7)
+    last_login = datetime.fromisoformat(cookie_time)
+    return datetime.now() - last_login > timedelta(days=7)
 
 # تسجيل الخروج اليدوي
 if st.sidebar.button("🔒 تسجيل الخروج"):
-    st.session_state["user"] = None
-    st.session_state["login_time"] = None
+    cookies.delete("user")
+    cookies.delete("login_time")
     st.success("تم تسجيل الخروج")
+    st.experimental_rerun()
 
 # دالة تسجيل الدخول
 def login():
@@ -44,10 +54,10 @@ def login():
     password = st.text_input("ادخل الكود السري", type="password")
     if st.button("دخول"):
         if username in users and users[username] == password:
-            st.session_state["user"] = username
-            st.session_state["login_time"] = datetime.now()
+            cookies.set("user", username)
+            cookies.set("login_time", datetime.now().isoformat())
             st.success(f"مرحبًا {username} 👋")
-            st.rerun()
+            st.experimental_rerun()
         else:
             st.error("❌ اسم المستخدم أو الكود غير صحيح")
 
@@ -78,14 +88,13 @@ def add_time_out(name):
     else:
         st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
 
-# -------------------------
+# --------------------------------
 # التشغيل الفعلي
 
-# لو الجلسة انتهت أو لم يبدأ
-if st.session_state["user"] is None or session_expired():
+if not cookie_user or session_expired():
     login()
 else:
-    current_user = st.session_state["user"]
+    current_user = cookie_user
     st.title(f"📋 واجهة الحضور والانصراف - {current_user}")
 
     col1, col2 = st.columns(2)
