@@ -9,8 +9,8 @@ st.set_page_config(page_title="Time Sheet", page_icon="📋")
 
 # الاتصال بـ Supabase
 url = st.secrets["url"]
-key = st.secrets["key"]
-supabase = create_client(url, key)
+anon_key = st.secrets["key"]
+supabase = create_client(url, anon_key)
 
 # وظيفة تسجيل الدخول
 def login_user(email, password):
@@ -37,7 +37,7 @@ def add_time_in(name, user_id, token):
     }
     headers = {
         "Authorization": f"Bearer {token}",
-        "apikey": key,
+        "apikey": anon_key,
     }
     response = requests.post(
         f"{url}/rest/v1/time_sheet",
@@ -118,6 +118,10 @@ else:
             add_time_out(name, access_token)
 
     if st.button("🚪 تسجيل الخروج"):
+        st.session_state.session = None
+        st.session_state.user = None
+        st.rerun()
+
         st.session_state.session = None
         st.session_state.user = None
         st.rerun()
