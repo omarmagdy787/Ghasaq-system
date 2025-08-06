@@ -54,7 +54,6 @@ for person in people:
     with col2:
         if st.button(f"{person} ⛔ OUT"):
             add_time_out(person)
-
     else:
         st.warning("❌ لا يوجد زرار مسجّل لك في النظام")
 
