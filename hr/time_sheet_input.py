@@ -21,8 +21,8 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days'],
 )
 
-# ✅ تسجيل الدخول بالطريقة المتوافقة مع الإصدار القديم
-name, authentication_status, username = authenticator.login("Login")
+# ✅ تسجيل الدخول باستخدام location='main'
+name, authentication_status, username = authenticator.login("Login", location='main')
 
 if authentication_status == False:
     st.error("Username or password is incorrect")
@@ -85,6 +85,7 @@ if authentication_status:
                 add_time_out(name)
     else:
         st.warning("❌ لا يوجد زرار مسجّل لك في النظام")
+
 
 
 
