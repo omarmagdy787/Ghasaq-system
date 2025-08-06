@@ -5,3 +5,4 @@ streamlit-aggrid
 streamlit-autorefresh
 openpyxl
 pandas
+streamlit-authenticator
