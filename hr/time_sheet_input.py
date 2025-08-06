@@ -122,8 +122,4 @@ else:
         st.session_state.user = None
         st.rerun()
 
-        st.session_state.session = None
-        st.session_state.user = None
-        st.rerun()
-
 
