@@ -26,10 +26,11 @@ def login_user(email, password):
         return None
 
 # تسجيل وقت الدخول
-def add_time_in(name, token):
+def add_time_in(name, user_id, token):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
+        "user_id": user_id,  # 👈 مهم علشان الـ RLS
         "date": str(date.today()),
         "from": now,
         "project": "Default"
@@ -102,6 +103,7 @@ if not st.session_state.session:
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
+    user_id = user.id  # 👈 ده الـ UID
     name = user.user_metadata.get("name") or user.email.split("@")[0]
 
     st.success(f"👋 مرحبًا، {name}")
@@ -109,7 +111,7 @@ else:
     col1, col2 = st.columns(2)
     with col1:
         if st.button("✅ IN"):
-            add_time_in(name, access_token)
+            add_time_in(name, user_id, access_token)
 
     with col2:
         if st.button("⛔ OUT"):
@@ -119,6 +121,5 @@ else:
         st.session_state.session = None
         st.session_state.user = None
         st.rerun()
-
 
 
