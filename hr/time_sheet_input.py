@@ -90,7 +90,8 @@ if not st.session_state.session:
         submitted = st.form_submit_button("تسجيل الدخول")
         if submitted:
             auth_response = login_user(email, password)
-            if auth_response and auth_response.session:
+            # تحقق من وجود session بأمان
+            if auth_response is not None and hasattr(auth_response, "session") and auth_response.session:
                 st.session_state.session = auth_response.session
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
@@ -116,4 +117,11 @@ else:
                 add_time_out(name, user_id)
     else:
         st.error("🚫 هذا المستخدم غير مصرح له باستخدام النظام")
+
+    # زر تسجيل الخروج
+    if st.button("🚪 تسجيل الخروج"):
+        st.session_state.session = None
+        st.session_state.user = None
+        st.experimental_rerun()
+
 
