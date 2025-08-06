@@ -47,7 +47,7 @@ def login():
             st.session_state["user"] = username
             st.session_state["login_time"] = datetime.now()
             st.success(f"مرحبًا {username} 👋")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("❌ اسم المستخدم أو الكود غير صحيح")
 
