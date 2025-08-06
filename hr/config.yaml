@@ -1,1 +1,14 @@
-
+credentials:
+  usernames:
+    omar:
+      email: omar@example.com
+      name: Omar Magdy
+      password: pbkdf2:sha256:260000$...  # كلمة السر المشفرة (هقولك إزاي نعملها تحت)
+    ali:
+      email: ali@example.com
+      name: Ali Saeed
+      password: pbkdf2:sha256:260000$...
+cookie:
+  name: auth_cookie
+  key: some_signature_key
+  expiry_days: 7
