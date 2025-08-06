@@ -22,7 +22,14 @@ authenticator = stauth.Authenticate(
 )
 
 # ✅ تسجيل الدخول بالطريقة القديمة بدون location keyword
-name, authentication_status, username = authenticator.login("main")
+login_info = authenticator.login(form_name="Login", location="main")
+
+if login_info is not None and login_info["authentication_status"]:
+    name = login_info["name"]
+    authentication_status = login_info["authentication_status"]
+    username = login_info["username"]
+else:
+    name = authentication_status = username = None
 
 if authentication_status == False:
     st.error("Username or password is incorrect")
