@@ -21,7 +21,7 @@ def login_user(email, password):
         })
         return response
     except Exception as e:
-        st.error("فشل تسجيل الدخول")
+        st.error("❌ فشل تسجيل الدخول")
         st.write(e)
         return None
 
@@ -30,7 +30,7 @@ def add_time_in(name, user_id):
     now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
     data = {
         "name": name,
-        "user_id": user.id,  # مهم جدا لـ RLS policies
+        "user_id": user_id,  # مهم جدا لـ RLS policies
         "date": str(date.today()),
         "from": now,
         "project": "Default"
@@ -40,9 +40,13 @@ def add_time_in(name, user_id):
         if res.status_code == 201:
             st.success(f"{name} ✅ تم تسجيل وقت الدخول")
         else:
-            st.error(f"❌ خطأ أثناء تسجيل الدخول: {res.data}")
+            st.error(f"❌ خطأ أثناء تسجيل الدخول")
+            st.markdown("### 🐞 تفاصيل الخطأ:")
+            st.write("🔢 Status Code:", res.status_code)
+            st.write("🧾 Response Data:", res.data)
+            st.write("📤 Data Sent:", data)
     except Exception as e:
-        st.error("❌ حدث خطأ أثناء تسجيل الدخول")
+        st.error("❌ حدث استثناء أثناء تسجيل الدخول")
         st.write(e)
 
 # تسجيل وقت الانصراف
@@ -66,11 +70,15 @@ def add_time_out(name, user_id):
             if update_response.status_code == 204:
                 st.success(f"{name} ⛔ تم تسجيل الانصراف")
             else:
-                st.error(f"❌ خطأ أثناء تسجيل الانصراف: {update_response.data}")
+                st.error(f"❌ خطأ أثناء تسجيل الانصراف")
+                st.markdown("### 🐞 تفاصيل الخطأ:")
+                st.write("🔢 Status Code:", update_response.status_code)
+                st.write("🧾 Response Data:", update_response.data)
+                st.write("📤 Data Sent:", {"to": now})
         else:
             st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
     except Exception as e:
-        st.error("❌ حدث خطأ أثناء تسجيل الانصراف")
+        st.error("❌ حدث استثناء أثناء تسجيل الانصراف")
         st.write(e)
 
 # -----------------------------
@@ -97,6 +105,8 @@ if not st.session_state.session:
                 st.session_state.user = auth_response.user
                 st.success("✅ تم تسجيل الدخول")
                 st.experimental_rerun()
+            else:
+                st.error("❌ فشل في تسجيل الدخول، يرجى التحقق من البريد وكلمة السر")
 else:
     user = st.session_state.user
     access_token = st.session_state.session.access_token
