@@ -248,5 +248,4 @@ with col2:
     if st.button(f"{cookie_user} ⛔ OUT"):  
         add_time_out(cookie_user)
 
-اهو
 
