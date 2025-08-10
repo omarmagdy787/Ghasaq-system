@@ -53,8 +53,8 @@ def cookie_expired():
 
 # تسجيل الخروج
 if st.sidebar.button("🔒 تسجيل الخروج"):
-    cookies.delete("user")
-    cookies.delete("login_time")
+    cookies["user"] = ""
+    cookies["login_time"] = ""
     cookies.save()
     st.success("✅ تم تسجيل الخروج")
     st.stop()
