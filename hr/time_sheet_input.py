@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import date, datetime, timedelta
 from supabase import create_client, Client
 from streamlit_cookies_manager import EncryptedCookieManager
+from zoneinfo import ZoneInfo  # ⬅ إضافة المكتبة
 
 # إعداد الصفحة
 st.set_page_config(page_title="Time Sheet", page_icon="📋")
@@ -40,7 +41,7 @@ if cookie_login_time:
 def cookie_expired():
     if not cookie_login_time:
         return True
-    return datetime.now() - cookie_login_time > timedelta(days=7)
+    return datetime.now(ZoneInfo("Africa/Cairo")) - cookie_login_time > timedelta(days=7)  # ⬅ توقيت القاهرة
 
 # تسجيل الخروج
 if st.sidebar.button("🔒 تسجيل الخروج"):
@@ -58,7 +59,7 @@ def login():
     if st.button("دخول"):
         if username in users and users[username] == password:
             cookies["user"] = username
-            cookies["login_time"] = datetime.now().isoformat()
+            cookies["login_time"] = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()  # ⬅ توقيت القاهرة
             cookies.save()
             st.success(f"مرحبًا {username} 👋")
             st.rerun()
@@ -67,10 +68,11 @@ def login():
 
 # دالة تسجيل الدخول في Supabase
 def add_time_in(name):
-    now = datetime.now().isoformat()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()  # ⬅ توقيت القاهرة
+    today_cairo = date.today()  # التاريخ في نفس المنطقة الزمنية
     data = {
         "name": name,
-        "date": str(date.today()),
+        "date": str(today_cairo),
         "from": now,
         "project": "Default"
     }
@@ -83,8 +85,9 @@ def add_time_in(name):
 
 # دالة تسجيل الخروج في Supabase
 def add_time_out(name):
-    now = datetime.now().isoformat()
-    response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(date.today())).order("id", desc=True).limit(1).execute()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()  # ⬅ توقيت القاهرة
+    today_cairo = date.today()
+    response = supabase.table(TABLE_NAME).select("id").eq("name", name).eq("date", str(today_cairo)).order("id", desc=True).limit(1).execute()
     if response.data:
         row_id = response.data[0]["id"]
         supabase.table(TABLE_NAME).update({"to": now}).eq("id", row_id).execute()
@@ -94,7 +97,6 @@ def add_time_out(name):
 
 # -------------------------------
 # التشغيل الفعلي
-
 if not cookie_user or cookie_expired():
     login()
 else:
@@ -107,3 +109,4 @@ else:
     with col2:
         if st.button(f"{cookie_user} ⛔ OUT"):
             add_time_out(cookie_user)
+
