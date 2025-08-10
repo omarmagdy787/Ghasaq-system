@@ -74,19 +74,6 @@ def login():
         else:
             st.error("❌ اسم المستخدم أو الكود غير صحيح")
 
-    st.markdown("---")
-    st.write("دخول سريع (زر واحد):")
-    cols = st.columns(2)
-    for i, name in enumerate(users.keys()):
-        with cols[i % 2]:
-            if st.button(f"دخول سريع — {name}"):
-                # نسجل الكوكي مباشرة للمستخدم اللي ضغط الزر
-                cookies["user"] = name
-                cookies["login_time"] = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
-                cookies.save()
-                st.success(f"✅ تم تسجيل الدخول السريع لـ {name}")
-                st.rerun()
-
 # دالة تسجيل الدخول في Supabase
 def add_time_in(name):
     now_iso = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
@@ -147,18 +134,3 @@ else:
         if st.button(f"{cookie_user} ⛔ OUT"):
             add_time_out(cookie_user)
 
-    st.markdown("---")
-    # قسم لتبديل المستخدم بسرعة (لو حد تاني بيتعامل مع الجهاز)
-    with st.expander("🔁 تبديل مستخدم / دخول سريع"):
-        cols = st.columns(2)
-        for i, name in enumerate(users.keys()):
-            with cols[i % 2]:
-                if st.button(f"تبديل إلى {name}"):
-                    cookies["user"] = name
-                    cookies["login_time"] = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
-                    cookies.save()
-                    st.success(f"✅ تم التبديل إلى {name}")
-                    st.rerun()
-    with col2:
-        if st.button(f"{cookie_user} ⛔ OUT"):
-            add_time_out(cookie_user)
