@@ -35,7 +35,6 @@ cookie_login_time = None
 if cookie_login_time_raw:
     try:
         cookie_login_time = datetime.fromisoformat(cookie_login_time_raw)
-        # لو الـ datetime اللي جاي من isoformat مفيهوش tzinfo، نضيف توقيت القاهرة افتراضياً
         if cookie_login_time.tzinfo is None:
             cookie_login_time = cookie_login_time.replace(tzinfo=ZoneInfo("Africa/Cairo"))
     except Exception:
@@ -43,7 +42,6 @@ if cookie_login_time_raw:
 
 # التحقق من صلاحية الكوكيز
 def cookie_expired():
-    # لو مفيش وقت مسجل أو النوع مش datetime => اعتبر الكوكي منتهي الصلاحية
     if not cookie_login_time or not isinstance(cookie_login_time, datetime):
         return True
     try:
@@ -76,12 +74,12 @@ def login():
 
 # دالة تسجيل الدخول في Supabase
 def add_time_in(name):
-    now_iso = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
-    today_cairo = datetime.now(ZoneInfo("Africa/Cairo")).date()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).replace(second=0, microsecond=0)  # ⬅ بدون ثواني
+    today_cairo = now.date()
     data = {
         "name": name,
         "date": str(today_cairo),
-        "from": now_iso,
+        "from": now.isoformat(),  # timestamp لحد الدقايق
         "project": "Default"
     }
     try:
@@ -93,8 +91,8 @@ def add_time_in(name):
 
 # دالة تسجيل الخروج في Supabase
 def add_time_out(name):
-    now_iso = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
-    today_cairo = datetime.now(ZoneInfo("Africa/Cairo")).date()
+    now = datetime.now(ZoneInfo("Africa/Cairo")).replace(second=0, microsecond=0)  # ⬅ بدون ثواني
+    today_cairo = now.date()
     try:
         response = supabase.table(TABLE_NAME) \
             .select("id") \
@@ -105,7 +103,7 @@ def add_time_out(name):
             .execute()
         if response and getattr(response, "data", None):
             row_id = response.data[0]["id"]
-            supabase.table(TABLE_NAME).update({"to": now_iso}).eq("id", row_id).execute()
+            supabase.table(TABLE_NAME).update({"to": now.isoformat()}).eq("id", row_id).execute()
             st.success(f"{name} ⛔ تم تسجيل الانصراف")
         else:
             st.warning(f"⚠️ لا يوجد دخول مسجل اليوم لـ {name}")
@@ -116,7 +114,6 @@ def add_time_out(name):
 # -------------------------------
 # التشغيل الفعلي
 if not cookie_user or cookie_expired():
-    # لو مفيش مستخدم مسجل أو الكوكي منتهي -> نعرض صفحة تسجيل الدخول
     login()
 else:
     st.title(f"📋 واجهة الحضور والانصراف - {cookie_user}")
@@ -124,7 +121,6 @@ else:
     col1, col2 = st.columns(2)
     with col1:
         if st.button(f"{cookie_user} ✅ IN"):
-            # لو لسبب ما الكوكيز مش موجودة (حالة نادرة) نسجله الآن قبل الاضافة
             if not cookies.get("user"):
                 cookies["user"] = cookie_user
                 cookies["login_time"] = datetime.now(ZoneInfo("Africa/Cairo")).isoformat()
